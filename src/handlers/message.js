@@ -299,6 +299,12 @@ if (tokenData && tokenData.spreadsheet_id) {
 
     const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
 
+    console.log('📤 KIRIM KE SHEET:', {
+      sheet: tokenData.spreadsheet_id,
+      desc: parsed.description,
+      amount: parsed.amount
+    });
+
     await sheets.spreadsheets.values.append({
       spreadsheetId: tokenData.spreadsheet_id,
       range: 'Transaksi!A:D',
