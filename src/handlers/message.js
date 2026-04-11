@@ -280,7 +280,7 @@ async function handleText(bot, chatId, user, text) {
     transactedAt: new Date().toISOString()
   });
 
-  const tokenData = await db.getGoogleToken(user.id.toString());
+  const tokenData = await db.getGoogleToken(telegramId.toString());
 
   console.log('TOKEN DATA:', tokenData);
   console.log('USER ID:', user.id);
