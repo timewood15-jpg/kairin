@@ -100,7 +100,7 @@ async function handleUpdate(bot, update) {
 
   // Teks biasa → coba parse transaksi atau chat AI
   if (text) {
-    await handleText(bot, chatId, user, text);
+    await handleText(bot, chatId, user, text, telegramId);
   }
 }
 
@@ -223,7 +223,7 @@ Contoh: _"Bulan ini saya boros di mana?"_`;
 // ============================================================
 // HANDLE TEKS — Parse transaksi atau chat AI
 // ============================================================
-async function handleText(bot, chatId, user, text) {
+async function handleText(bot, chatId, user, text, telegramId) {
   console.log('🔥 MASUK HANDLE TEXT');
   // 🔥 PRIORITAS 1: EDIT SESSION
   if (hasEditSession(user.id)) {
