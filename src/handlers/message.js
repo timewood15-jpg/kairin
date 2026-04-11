@@ -305,7 +305,7 @@ if (tokenData && tokenData.spreadsheet_id) {
 
     console.log('🚀 KIRIM KE SHEET:', {
       spreadsheetId: tokenData.spreadsheet_id,
-      text: parsed.text,
+      text: parsed.description,
       amount: parsed.amount
     });
 
