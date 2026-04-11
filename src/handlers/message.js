@@ -303,9 +303,9 @@ if (tokenData && tokenData.spreadsheet_id) {
 
     const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
 
-    console.log('📤 KIRIM KE SHEET:', {
-      sheet: tokenData.spreadsheet_id,
-      desc: parsed.description,
+    console.log('🚀 KIRIM KE SHEET:', {
+      spreadsheetId: tokenData.spreadsheet_id,
+      text: parsed.text,
       amount: parsed.amount
     });
 
@@ -322,6 +322,8 @@ if (tokenData && tokenData.spreadsheet_id) {
         ]]
       }
     });
+
+    console.log('✅ BERHASIL APPEND');
 
   } catch (err) {
     console.error('❌ Gagal kirim ke sheet:', err);
