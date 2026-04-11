@@ -224,7 +224,7 @@ Contoh: _"Bulan ini saya boros di mana?"_`;
 // HANDLE TEKS — Parse transaksi atau chat AI
 // ============================================================
 async function handleText(bot, chatId, user, text) {
-  
+  console.log('🔥 MASUK HANDLE TEXT');
   // 🔥 PRIORITAS 1: EDIT SESSION
   if (hasEditSession(user.id)) {
     const handled = await handleEditSession(bot, chatId, user, text);
