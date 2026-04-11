@@ -373,6 +373,7 @@ async function saveGoogleToken({ user_id, access_token, refresh_token }) {
         user_id,
         access_token,
         refresh_token,
+        spreadsheet_id,
       },
     ]);
 

@@ -94,6 +94,7 @@ app.get('/auth/google/callback', async (req, res) => {
       user_id: chatId,
       access_token: tokens.access_token,
       refresh_token: tokens.refresh_token,
+      spreadsheet_id: spreadsheetId
     });
 
     const spreadsheetId = await createSheet(oauth2Client);
