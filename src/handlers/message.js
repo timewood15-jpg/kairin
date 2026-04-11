@@ -280,9 +280,11 @@ async function handleText(bot, chatId, user, text) {
     transactedAt: new Date().toISOString()
   });
 
-  const tokenData = await db.getGoogleToken(user.id);
+  const tokenData = await db.getGoogleToken(user.id.toString());
 
   console.log('TOKEN DATA:', tokenData);
+  console.log('USER ID:', user.id);
+  console.log('USER ID STRING:', user.id.toString());
 
 if (tokenData && tokenData.spreadsheet_id) {
   try {
