@@ -96,6 +96,9 @@ app.get('/auth/google/callback', async (req, res) => {
       refresh_token: tokens.refresh_token,
     });
 
+    const spreadsheetId = await createSheet(oauth2Client);
+    await db.saveSpreadsheetId(chatId, spreadsheetId);
+
     res.send('✅ Google berhasil terhubung! Silakan kembali ke Telegram 🎉');
   } catch (err) {
     console.error(err);
@@ -106,3 +109,24 @@ app.get('/auth/google/callback', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server jalan di port ${PORT}`);
 });
+
+async function createSheet(auth) {
+  const sheets = google.sheets({ version: 'v4', auth });
+
+  const response = await sheets.spreadsheets.create({
+    resource: {
+      properties: {
+        title: 'Kairin - Catatan Keuangan'
+      },
+      sheets: [
+        {
+          properties: {
+            title: 'Transaksi'
+          }
+        }
+      ]
+    }
+  });
+
+  return response.data.spreadsheetId;
+}
