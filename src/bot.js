@@ -81,24 +81,25 @@ app.get('/auth/google/callback', async (req, res) => {
   try {
     const code = req.query.code;
 
+    // 1. tukar code → token
     const { tokens } = await oauth2Client.getToken(code);
-
     oauth2Client.setCredentials(tokens);
     console.log('TOKENS:', tokens);
 
+    // 2. ambil chatId
     const chatId = req.query.state;
     console.log('USER TELEGRAM:', chatId);
 
-    // 🔥 SIMPAN KE SUPABASE
+    // 3. buat sheet DULU
+    const spreadsheetId = await createSheet(oauth2Client);
+
+    // 4. simpan SEKALIGUS
     await db.saveGoogleToken({
       user_id: chatId,
       access_token: tokens.access_token,
       refresh_token: tokens.refresh_token,
       spreadsheet_id: spreadsheetId
     });
-
-    const spreadsheetId = await createSheet(oauth2Client);
-    await db.saveSpreadsheetId(chatId, spreadsheetId);
 
     res.send('✅ Google berhasil terhubung! Silakan kembali ke Telegram 🎉');
   } catch (err) {

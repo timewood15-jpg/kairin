@@ -282,6 +282,8 @@ async function handleText(bot, chatId, user, text) {
 
   const tokenData = await db.getGoogleToken(user.id);
 
+  console.log('TOKEN DATA:', tokenData);
+
 if (tokenData && tokenData.spreadsheet_id) {
   try {
     const { google } = require('googleapis');
