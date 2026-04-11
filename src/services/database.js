@@ -398,6 +398,21 @@ async function saveSpreadsheetId(user_id, spreadsheet_id) {
   return data;
 }
 
+async function getGoogleToken(user_id) {
+  const { data, error } = await supabase
+    .from('google_tokens')
+    .select('*')
+    .eq('user_id', user_id)
+    .single();
+
+  if (error) {
+    console.error('❌ Error get token:', error.message);
+    return null;
+  }
+
+  return data;
+}
+
 module.exports = {
   supabase,
   getOrCreateUser,
@@ -420,5 +435,6 @@ module.exports = {
   getOcrSession,
   deleteOcrSession,
   saveGoogleToken,
-  saveSpreadsheetId
+  saveSpreadsheetId,
+  getGoogleToken
 };

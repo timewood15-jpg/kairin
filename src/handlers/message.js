@@ -280,6 +280,44 @@ async function handleText(bot, chatId, user, text) {
     transactedAt: new Date().toISOString()
   });
 
+  const tokenData = await db.getGoogleToken(user.id);
+
+if (tokenData && tokenData.spreadsheet_id) {
+  try {
+    const { google } = require('googleapis');
+
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    );
+
+    oauth2Client.setCredentials({
+      access_token: tokenData.access_token,
+      refresh_token: tokenData.refresh_token,
+    });
+
+    const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: tokenData.spreadsheet_id,
+      range: 'Transaksi!A:D',
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [[
+          new Date().toISOString(),
+          parsed.text,
+          parsed.amount,
+          parsed.category || 'lainnya'
+        ]]
+      }
+    });
+
+  } catch (err) {
+    console.error('❌ Gagal kirim ke sheet:', err.message);
+  }
+}
+
   await db.incrementUsage(user.id, 'text');
 
   const emoji = parsed.type === 'pemasukan' ? '🟢' : '🔴';
