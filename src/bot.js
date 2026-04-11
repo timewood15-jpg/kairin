@@ -1,3 +1,4 @@
+const db = require('./services/database');
 const express = require('express');
 const app = express();
 
@@ -30,19 +31,20 @@ console.log('🚀 Kairin Bot sedang berjalan...');
 console.log('📱 Bot: @KairinAppBot');
 
 // ✅ TAMBAHAN: command connect Google
-bot.onText(/\/connect-sheet/, async (msg) => {
-  const chatId = msg.chat.id;
+  bot.onText(/\/connect-sheet/, async (msg) => {
+    const chatId = msg.chat.id;
 
-  const scopes = [
-    'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/drive.file'
-  ];
+    const scopes = [
+      'https://www.googleapis.com/auth/spreadsheets',
+      'https://www.googleapis.com/auth/drive.file'
+    ];
 
-  const url = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: scopes,
-    prompt: 'consent'
-  });
+    const url = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: scopes,
+      prompt: 'consent',
+      state: chatId.toString() // 🔥 INI PENTING
+    });
 
   await bot.sendMessage(chatId, `🔗 Hubungkan Google Sheet kamu:\n\n${url}`);
 });
@@ -81,9 +83,18 @@ app.get('/auth/google/callback', async (req, res) => {
 
     const { tokens } = await oauth2Client.getToken(code);
 
+    oauth2Client.setCredentials(tokens);
     console.log('TOKENS:', tokens);
 
-    // nanti disini kita simpan ke database
+    const chatId = req.query.state;
+    console.log('USER TELEGRAM:', chatId);
+
+    // 🔥 SIMPAN KE SUPABASE
+    await db.saveGoogleToken({
+      user_id: chatId,
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+    });
 
     res.send('✅ Google berhasil terhubung! Silakan kembali ke Telegram 🎉');
   } catch (err) {

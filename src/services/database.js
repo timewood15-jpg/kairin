@@ -365,6 +365,25 @@ async function deleteOcrSession(userId) {
     .eq('user_id', userId);
 }
 
+async function saveGoogleToken({ user_id, access_token, refresh_token }) {
+  const { data, error } = await supabase
+    .from('google_tokens')
+    .upsert([
+      {
+        user_id,
+        access_token,
+        refresh_token,
+      },
+    ]);
+
+  if (error) {
+    console.error('❌ Error save token:', error.message);
+    throw error;
+  }
+
+  return data;
+}
+
 module.exports = {
   supabase,
   getOrCreateUser,
@@ -385,5 +404,6 @@ module.exports = {
   getTransactionById,
   saveOcrSession,
   getOcrSession,
-  deleteOcrSession
+  deleteOcrSession,
+  saveGoogleToken
 };
