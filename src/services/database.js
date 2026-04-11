@@ -403,8 +403,8 @@ async function getGoogleToken(user_id) {
     .from('google_tokens')
     .select('*')
     .eq('user_id', user_id)
-    .single();
-
+    .limit(1)
+    .maybeSingle();
   if (error) {
     console.error('❌ Error get token:', error.message);
     return null;
