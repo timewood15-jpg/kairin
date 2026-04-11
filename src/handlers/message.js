@@ -306,7 +306,7 @@ if (tokenData && tokenData.spreadsheet_id) {
       resource: {
         values: [[
           new Date().toISOString(),
-          parsed.text,
+          parsed.description,
           parsed.amount,
           parsed.category || 'lainnya'
         ]]
@@ -314,7 +314,7 @@ if (tokenData && tokenData.spreadsheet_id) {
     });
 
   } catch (err) {
-    console.error('❌ Gagal kirim ke sheet:', err.message);
+    console.error('❌ Gagal kirim ke sheet:', err);
   }
 }
 
