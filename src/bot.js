@@ -109,7 +109,7 @@ app.get('/auth/google/callback', async (req, res) => {
     await db.saveGoogleToken({
       user_id: chatId,
       access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token || null,
+      refresh_token: tokens.refresh_token || undefined,
       spreadsheet_id: spreadsheetId
     });
 

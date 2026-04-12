@@ -375,7 +375,11 @@ async function saveGoogleToken({ user_id, access_token, refresh_token, spreadshe
         refresh_token,
         spreadsheet_id,
       },
-    ]);
+    ],
+    {
+      onConflict: 'user_id' // 🔥 INI KUNCINYA
+    }
+  );
 
   if (error) {
     console.error('❌ Error save token:', error.message);
