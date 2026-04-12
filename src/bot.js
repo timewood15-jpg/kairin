@@ -99,7 +99,7 @@ app.get('/auth/google/callback', async (req, res) => {
     console.log('TOKENS:', tokens);
 
     // 2. ambil chatId
-    const chatId = req.query.state;
+    const chatId = Number(req.query.state);
     console.log('USER TELEGRAM:', chatId);
 
     // 3. buat sheet DULU
@@ -109,7 +109,7 @@ app.get('/auth/google/callback', async (req, res) => {
     await db.saveGoogleToken({
       user_id: chatId,
       access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
+      refresh_token: tokens.refresh_token || null,
       spreadsheet_id: spreadsheetId
     });
 
