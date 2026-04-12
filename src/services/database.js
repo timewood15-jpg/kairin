@@ -365,7 +365,7 @@ async function deleteOcrSession(userId) {
     .eq('user_id', userId);
 }
 
-async function saveGoogleToken({ user_id, access_token, refresh_token }) {
+async function saveGoogleToken({ user_id, access_token, refresh_token, spreadsheet_id }) {
   const { data, error } = await supabase
     .from('google_tokens')
     .upsert([
