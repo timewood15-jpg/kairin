@@ -18,6 +18,18 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_REDIRECT_URI
 );
 
+//oauth2Client.on('tokens', async (tokens) => {
+//  console.log('🔄 REFRESH TOKEN:', tokens);
+
+//  if (tokens.access_token) {
+//    await db.saveGoogleToken({
+//      user_id: chatId,
+//      access_token: tokens.access_token,
+//      refresh_token: tokens.refresh_token
+//    });
+//  }
+//});
+
 const TOKEN = process.env.TELEGRAM_TOKEN;
 
 if (!TOKEN) {
@@ -130,7 +142,100 @@ async function createSheet(auth) {
     }
   });
 
-  return response.data.spreadsheetId;
+   const spreadsheetId = response.data.spreadsheetId;
+
+  // 🔥 TAMBAHKAN DI SINI (HEADER)
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: spreadsheetId,
+    range: 'Transaksi!A1:D1',
+    valueInputOption: 'RAW',
+    resource: {
+      values: [[
+        'Tanggal',
+        'Deskripsi',
+        'Jumlah',
+        'Kategori'
+      ]]
+    }
+  });
+
+  // freeze header
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    resource: {
+      requests: [
+        {
+          updateSheetProperties: {
+            properties: {
+              sheetId: 0,
+              gridProperties: {
+                frozenRowCount: 1
+              }
+            },
+            fields: 'gridProperties.frozenRowCount'
+          }
+        },
+        {
+          repeatCell: {
+            range: {
+              sheetId: 0,
+              startRowIndex: 0,
+              endRowIndex: 1
+            },
+            cell: {
+              userEnteredFormat: {
+                backgroundColor: {
+                  red: 0.2,
+                  green: 0.6,
+                  blue: 0.86
+                },
+                textFormat: {
+                 bold: true,
+                  foregroundColor: {
+                   red: 1,
+                    green: 1,
+                    blue: 1
+                  }
+                }
+              }
+            },
+            fields: 'userEnteredFormat(backgroundColor,textFormat)'
+          }
+        },
+        {
+          repeatCell: {
+            range: {
+              sheetId: 0,
+              startRowIndex: 1,
+              startColumnIndex: 2,
+              endColumnIndex: 3
+            },
+            cell: {
+              userEnteredFormat: {
+                numberFormat: {
+                  type: 'CURRENCY',
+                  pattern: 'Rp #,##0'
+                }
+              }
+            },
+            fields: 'userEnteredFormat.numberFormat'
+          }
+        },
+        {
+          autoResizeDimensions: {
+            dimensions: {
+              sheetId: 0,
+              dimension: 'COLUMNS',
+              startIndex: 0,
+              endIndex: 4
+            }
+          }
+        }
+      ]
+    }
+  });
+
+  return spreadsheetId;
 }
 
 async function appendToSheet(auth, spreadsheetId, data) {
@@ -138,7 +243,7 @@ async function appendToSheet(auth, spreadsheetId, data) {
 
   await sheets.spreadsheets.values.append({
     spreadsheetId,
-    range: 'Transaksi!A:D',
+    range: 'Transaksi!A2:D',
     valueInputOption: 'USER_ENTERED',
     resource: {
       values: [

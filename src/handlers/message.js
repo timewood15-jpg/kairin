@@ -315,7 +315,7 @@ if (tokenData && tokenData.spreadsheet_id) {
       valueInputOption: 'USER_ENTERED',
       resource: {
         values: [[
-          new Date().toISOString(),
+          new Date().toLocaleString('id-ID'),
           parsed.description,
           parsed.amount,
           parsed.category || 'lainnya'
