@@ -143,6 +143,7 @@ async function createSheet(auth) {
   });
 
    const spreadsheetId = response.data.spreadsheetId;
+   const sheetId = response.data.sheets[0].properties.sheetId;
 
   // 🔥 TAMBAHKAN DI SINI (HEADER)
   await sheets.spreadsheets.values.update({
@@ -167,7 +168,7 @@ async function createSheet(auth) {
         {
           updateSheetProperties: {
             properties: {
-              sheetId: 0,
+              sheetId: sheetId,
               gridProperties: {
                 frozenRowCount: 1
               }
@@ -178,7 +179,7 @@ async function createSheet(auth) {
         {
           repeatCell: {
             range: {
-              sheetId: 0,
+              sheetId: sheetId,
               startRowIndex: 0,
               endRowIndex: 1
             },
@@ -205,7 +206,7 @@ async function createSheet(auth) {
         {
           repeatCell: {
             range: {
-              sheetId: 0,
+              sheetId: sheetId,
               startRowIndex: 1,
               startColumnIndex: 2,
               endColumnIndex: 3
@@ -224,7 +225,7 @@ async function createSheet(auth) {
         {
           autoResizeDimensions: {
             dimensions: {
-              sheetId: 0,
+              sheetId: sheetId,
               dimension: 'COLUMNS',
               startIndex: 0,
               endIndex: 4
