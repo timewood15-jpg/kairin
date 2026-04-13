@@ -163,7 +163,7 @@ async function handleEditSession(bot, chatId, user, text) {
     await bot.sendMessage(chatId, '✅ Transaksi berhasil dihapus!');
 
     // 🔥 SYNC KE SHEET
-    const tokenData = await db.getGoogleToken(user.id);
+    const tokenData = await db.getGoogleToken(chatId.toString());
 
     if (tokenData && tokenData.spreadsheet_id) {
       const { google } = require('googleapis');
@@ -268,7 +268,7 @@ async function handleEditSession(bot, chatId, user, text) {
     delete editSessions[user.id];
 
     // 🔥 SYNC KE SHEET
-    const tokenData = await db.getGoogleToken(user.id);
+    const tokenData = await db.getGoogleToken(chatId.toString());
 
     if (tokenData && tokenData.spreadsheet_id) {
       const { google } = require('googleapis');
