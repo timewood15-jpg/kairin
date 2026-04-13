@@ -1,6 +1,6 @@
 // src/handlers/edit.js
 // Handler untuk edit dan hapus transaksi
-
+const { syncSheet } = require('../services/googleSheet');
 const db = require('../services/database');
 require('dotenv').config();
 
@@ -161,6 +161,28 @@ async function handleEditSession(bot, chatId, user, text) {
     delete editSessions[user.id];
 
     await bot.sendMessage(chatId, '✅ Transaksi berhasil dihapus!');
+
+    // 🔥 SYNC KE SHEET
+    const tokenData = await db.getGoogleToken(user.id);
+
+    if (tokenData && tokenData.spreadsheet_id) {
+      const { google } = require('googleapis');
+
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        process.env.GOOGLE_REDIRECT_URI
+      );
+
+      oauth2Client.setCredentials({
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+      });
+
+      const transactions = await db.getLastTransactions(user.id, 100); // ambil banyak biar aman
+
+      await syncSheet(oauth2Client, tokenData.spreadsheet_id, transactions);
+    }
     return true;
   }
 
@@ -244,6 +266,28 @@ async function handleEditSession(bot, chatId, user, text) {
     });
 
     delete editSessions[user.id];
+
+    // 🔥 SYNC KE SHEET
+    const tokenData = await db.getGoogleToken(user.id);
+
+    if (tokenData && tokenData.spreadsheet_id) {
+      const { google } = require('googleapis');
+
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        process.env.GOOGLE_REDIRECT_URI
+      );
+
+      oauth2Client.setCredentials({
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+      });
+
+      const transactions = await db.getLastTransactions(user.id, 100);
+
+      await syncSheet(oauth2Client, tokenData.spreadsheet_id, transactions);
+    }
 
     const fieldLabels = {
       amount: 'Nominal',
