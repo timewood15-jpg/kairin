@@ -323,6 +323,9 @@ if (tokenData && tokenData.spreadsheet_id) {
       }
     });
 
+    const transactions = await db.getAllTransactions(user.id);
+    await syncMonthlySummary(oauth2Client, tokenData.spreadsheet_id, transactions);
+
     console.log('✅ BERHASIL APPEND');
 
   } catch (err) {

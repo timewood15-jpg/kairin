@@ -137,6 +137,10 @@ async function createSheet(auth) {
           properties: {
             title: 'Transaksi'
           }
+        },
+        { properties: { 
+            title: 'Rekap Bulanan' 
+          } 
         }
       ]
     }
@@ -157,6 +161,21 @@ async function createSheet(auth) {
         'Jumlah',
         'Kategori'
       ]]
+    }
+  });
+
+  // 🔵 HEADER REKAP BULANAN
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: spreadsheetId,
+    range: 'Rekap Bulanan!A1:D1',
+    valueInputOption: 'RAW',
+    resource: {
+      values: [[
+        'Bulan',
+        'Pemasukan',
+        'Pengeluaran',
+        'Saldo'
+     ]]
     }
   });
 

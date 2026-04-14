@@ -1,6 +1,6 @@
 // src/handlers/edit.js
 // Handler untuk edit dan hapus transaksi
-const { syncSheet } = require('../services/googleSheet');
+const { syncSheet, syncMonthlySummary } = require('../services/googleSheet');
 const db = require('../services/database');
 require('dotenv').config();
 
@@ -182,6 +182,7 @@ async function handleEditSession(bot, chatId, user, text) {
       const transactions = await db.getTransactionsForSheet(user.id, 100); // ambil banyak biar aman
 
       await syncSheet(oauth2Client, tokenData.spreadsheet_id, transactions);
+      await syncMonthlySummary(oauth2Client, tokenData.spreadsheet_id, transactions);
     }
     return true;
   }
@@ -287,6 +288,7 @@ async function handleEditSession(bot, chatId, user, text) {
       const transactions = await db.getTransactionsForSheet(user.id, 100);
 
       await syncSheet(oauth2Client, tokenData.spreadsheet_id, transactions);
+      await syncMonthlySummary(oauth2Client, tokenData.spreadsheet_id, transactions);
     }
 
     const fieldLabels = {
