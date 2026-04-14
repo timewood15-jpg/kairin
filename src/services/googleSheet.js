@@ -1,4 +1,5 @@
 const { google } = require('googleapis');
+const SHEET_REKAP = 'Rekap Bulanan';
 
 async function syncSheet(auth, spreadsheetId, transactions) {
   console.log('🔥 SYNC DIPANGGIL');
@@ -31,16 +32,20 @@ async function syncSheet(auth, spreadsheetId, transactions) {
 }
 
 async function syncMonthlySummary(auth, spreadsheetId, transactions) {
-  const { google } = require('googleapis');
   const sheets = google.sheets({ version: 'v4', auth });
 
-  // 🔥 TARUH DI SINI
-  await ensureSheetExists(auth, spreadsheetId, 'Rekap Bulanan');
+  await ensureSheetExists(auth, spreadsheetId, SHEET_REKAP);
 
-  // header (boleh sementara selalu update)
+  // 1. CLEAR DATA (tanpa header)
+  await sheets.spreadsheets.values.clear({
+    spreadsheetId,
+    range: `${SHEET_REKAP}!A2:D`
+  });
+
+  // 2. SET HEADER
   await sheets.spreadsheets.values.update({
     spreadsheetId,
-    range: 'Rekap Bulanan!A1:D1',
+    range: `${SHEET_REKAP}!A1:D1`,
     valueInputOption: 'RAW',
     resource: {
       values: [[
@@ -52,6 +57,7 @@ async function syncMonthlySummary(auth, spreadsheetId, transactions) {
     }
   });
 
+  // 3. HITUNG REKAP
   const summary = {};
 
   transactions.forEach(t => {
@@ -76,20 +82,18 @@ async function syncMonthlySummary(auth, spreadsheetId, transactions) {
     val.income - val.expense
   ]);
 
-  // urutkan bulan ASC
+  // urutkan ASC
   rows.sort((a, b) => a[0].localeCompare(b[0]));
 
-  await sheets.spreadsheets.values.clear({
-    spreadsheetId,
-    range: 'Rekap Bulanan!A1:D1'
-  });
-
+  // 4. INSERT DATA
   await sheets.spreadsheets.values.update({
     spreadsheetId,
-    range: 'Rekap Bulanan!A1:D1',
+    range: `${SHEET_REKAP}!A2:D`,
     valueInputOption: 'USER_ENTERED',
     resource: { values: rows }
   });
+
+  console.log('✅ REKAP BULANAN BERHASIL');
 }
 
 async function ensureSheetExists(auth, spreadsheetId, sheetName) {
@@ -119,6 +123,9 @@ async function ensureSheetExists(auth, spreadsheetId, sheetName) {
         ]
       }
     });
+    
+    // 🔥 PENTING: kasih delay biar ke-create dulu
+    await new Promise(r => setTimeout(r, 500));
   }
 }
 
