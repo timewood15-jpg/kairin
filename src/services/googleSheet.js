@@ -63,12 +63,12 @@ async function syncMonthlySummary(auth, spreadsheetId, transactions) {
 
   await sheets.spreadsheets.values.clear({
     spreadsheetId,
-    range: 'Rekap Bulanan!A2:D'
+    range: "'Rekap Bulanan'!A2:D"
   });
 
   await sheets.spreadsheets.values.update({
     spreadsheetId,
-    range: 'Rekap Bulanan!A2:D',
+    range: "'Rekap Bulanan'!A2:D",
     valueInputOption: 'USER_ENTERED',
     resource: { values: rows }
   });

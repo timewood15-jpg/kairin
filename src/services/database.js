@@ -434,6 +434,20 @@ async function getGoogleToken(user_id) {
   return data;
 }
 
+async function getAllTransactions(user_id) {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', user_id);
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data;
+}
+
 module.exports = {
   supabase,
   getOrCreateUser,
@@ -458,5 +472,6 @@ module.exports = {
   saveGoogleToken,
   saveSpreadsheetId,
   getGoogleToken,
-  getTransactionsForSheet
+  getTransactionsForSheet,
+  getAllTransactions
 };
