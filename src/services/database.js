@@ -292,6 +292,22 @@ async function getLastTransactions(userId, limit = 10) {
   return data || [];
 }
 
+async function getTransactionsForSheet(user_id, limit = 100) {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', user_id)
+    .order('transacted_at', { ascending: true }) // 🔥 ASC (lama → baru)
+    .limit(limit);
+
+  if (error) {
+    console.error('❌ Error getTransactionsForSheet:', error.message);
+    return [];
+  }
+
+  return data;
+}
+
 // Update transaksi
 async function updateTransaction(transactionId, userId, updates) {
   const { data, error } = await supabase
@@ -441,5 +457,6 @@ module.exports = {
   deleteOcrSession,
   saveGoogleToken,
   saveSpreadsheetId,
-  getGoogleToken
+  getGoogleToken,
+  getTransactionsForSheet
 };

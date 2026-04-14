@@ -179,7 +179,7 @@ async function handleEditSession(bot, chatId, user, text) {
         refresh_token: tokenData.refresh_token,
       });
 
-      const transactions = await db.getLastTransactions(user.id, 100); // ambil banyak biar aman
+      const transactions = await db.getLastTransactionsForSheet(user.id, 100); // ambil banyak biar aman
 
       await syncSheet(oauth2Client, tokenData.spreadsheet_id, transactions);
     }
@@ -284,7 +284,7 @@ async function handleEditSession(bot, chatId, user, text) {
         refresh_token: tokenData.refresh_token,
       });
 
-      const transactions = await db.getLastTransactions(user.id, 100);
+      const transactions = await db.getLastTransactionsForSheet(user.id, 100);
 
       await syncSheet(oauth2Client, tokenData.spreadsheet_id, transactions);
     }
