@@ -34,6 +34,24 @@ async function syncMonthlySummary(auth, spreadsheetId, transactions) {
   const { google } = require('googleapis');
   const sheets = google.sheets({ version: 'v4', auth });
 
+  // 🔥 TARUH DI SINI
+  await ensureSheetExists(auth, spreadsheetId, 'Rekap Bulanan');
+
+  // header (boleh sementara selalu update)
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: 'Rekap Bulanan!A1:D1',
+    valueInputOption: 'RAW',
+    resource: {
+      values: [[
+        'Bulan',
+        'Pemasukan',
+        'Pengeluaran',
+        'Saldo'
+      ]]
+    }
+  });
+
   const summary = {};
 
   transactions.forEach(t => {
@@ -74,7 +92,38 @@ async function syncMonthlySummary(auth, spreadsheetId, transactions) {
   });
 }
 
+async function ensureSheetExists(auth, spreadsheetId, sheetName) {
+  const { google } = require('googleapis');
+  const sheets = google.sheets({ version: 'v4', auth });
+
+  const res = await sheets.spreadsheets.get({
+    spreadsheetId
+  });
+
+  const exists = res.data.sheets.some(
+    s => s.properties.title === sheetName
+  );
+
+  if (!exists) {
+    console.log(`📄 Sheet "${sheetName}" belum ada, bikin...`);
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      resource: {
+        requests: [
+          {
+            addSheet: {
+              properties: { title: sheetName }
+            }
+          }
+        ]
+      }
+    });
+  }
+}
+
 module.exports = {
   syncSheet,
-  syncMonthlySummary
+  syncMonthlySummary,
+  ensureSheetExists
 };
