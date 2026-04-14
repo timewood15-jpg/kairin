@@ -16,7 +16,7 @@ async function syncSheet(auth, spreadsheetId, transactions) {
     valueInputOption: 'USER_ENTERED',
     resource: {
       values: transactions.map(t => [
-        new Date(t.transacted_at).toLocaleString('id-ID'),
+        new Date(t.transacted_at).toISOString(),
         t.description,
         t.amount,
         t.category
