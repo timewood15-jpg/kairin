@@ -1,4 +1,5 @@
 // src/handlers/message.js
+const { syncMonthlySummary } = require('../services/googleSheet');
 const { handleEdit, handleHapus, handleEditSession, hasEditSession, clearEditSession } = require('./edit');
 const db = require('../services/database');
 const ai = require('../services/claude');
