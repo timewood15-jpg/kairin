@@ -224,128 +224,17 @@ Contoh: _"Bulan ini saya boros di mana?"_`;
 // ============================================================
 // HANDLE TEKS — Parse transaksi atau chat AI
 // ============================================================
-async function handleText(bot, chatId, user, text, telegramId) {
-  console.log('🔥 MASUK HANDLE TEXT');
-  // 🔥 PRIORITAS 1: EDIT SESSION
-  if (hasEditSession(user.id)) {
-    const handled = await handleEditSession(bot, chatId, user, text);
-    if (handled) return;
-  }
+const { handleTextTransaction } = require('../flows/transactionFlow');
+const { handleAI } = require('../flows/aiFlow');
 
-  // 🔥 PRIORITAS 2: OCR SESSION
+async function handleText(bot, chatId, user, text) {
 
-  const session = await db.getOcrSession(user.id);
+  // 1. coba transaksi dulu
+  const isTransaction = await handleTextTransaction(bot, chatId, user, text);
+  if (isTransaction) return;
 
-  console.log('📨 HANDLE TEXT SESSION:', session);
-
-  if (session && session.data) {
-    return await handleOcrSession(bot, chatId, user, text, session);
-  }
-
-  // =========================
-  // NORMAL FLOW
-  // =========================
-
-  const aiTriggers = ['?', 'kenapa', 'gimana', 'berapa', 'kapan', 'apa', 'analisa', 'saran'];
-  const isAI = aiTriggers.some(t => text.toLowerCase().includes(t));
-
-  if (isAI && text.length > 10) {
-    return await handleAIChat(bot, chatId, user, text);
-  }
-
-  const limit = await db.checkLimit(user.id, 'text');
-  if (!limit.allowed) {
-    await bot.sendMessage(chatId,
-      `⚠️ Batas transaksi teks habis.\nPlan ${getPlanLabel(limit.plan)}`
-    );
-    return;
-  }
-
-  await bot.sendMessage(chatId, '⏳ Memproses...');
-
-  const parsed = await ai.parseTransactionText(text);
-
-  if (!parsed) {
-    await bot.sendMessage(chatId,
-      `❓ Format tidak dikenali.\nContoh:\n• makan 25rb\n• +gaji 5jt`
-    );
-    return;
-  }
-
-  await db.saveTransaction(user.id, {
-    type: parsed.type,
-    amount: parsed.amount,
-    description: parsed.description,
-    category: parsed.category,
-    source: 'text',
-    transactedAt: new Date().toISOString()
-  });
-
-  const tokenData = await db.getGoogleToken(chatId.toString());
-
-  console.log('TOKEN DATA:', tokenData);
-  console.log('USER ID:', user.id);
-  console.log('USER ID STRING:', user.id.toString());
-
-if (tokenData && tokenData.spreadsheet_id) {
-  try {
-    const { google } = require('googleapis');
-
-    const oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      process.env.GOOGLE_REDIRECT_URI
-    );
-
-    oauth2Client.setCredentials({
-      access_token: tokenData.access_token,
-      refresh_token: tokenData.refresh_token,
-    });
-
-    const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
-
-    console.log('🚀 KIRIM KE SHEET:', {
-      spreadsheetId: tokenData.spreadsheet_id,
-      text: parsed.description,
-      amount: parsed.amount
-    });
-
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: tokenData.spreadsheet_id,
-      range: 'Transaksi!A:D',
-      valueInputOption: 'USER_ENTERED',
-      resource: {
-        values: [[
-          new Date().toLocaleString('id-ID'),
-          parsed.description,
-          parsed.amount,
-          parsed.category || 'lainnya'
-        ]]
-      }
-    });
-
-    const transactions = await db.getAllTransactions(user.id);
-    await syncMonthlySummary(oauth2Client, tokenData.spreadsheet_id, transactions);
-
-    console.log('✅ BERHASIL APPEND');
-
-  } catch (err) {
-    console.error('❌ Gagal kirim ke sheet:', err);
-  }
-}
-
-  await db.incrementUsage(user.id, 'text');
-
-  const emoji = parsed.type === 'pemasukan' ? '🟢' : '🔴';
-  const sign = parsed.type === 'pemasukan' ? '+' : '-';
-
-  await bot.sendMessage(chatId,
-    `${emoji} *${parsed.type.toUpperCase()}*\n\n` +
-    `📝 ${parsed.description}\n` +
-    `💵 ${sign}Rp ${formatRupiah(parsed.amount)}\n` +
-    `📂 ${parsed.category}\n` +
-    `🕐 ${getJakartaTime()}`
-  , { parse_mode: 'Markdown' });
+  // 2. fallback ke AI
+  await handleAI(bot, chatId, user, text);
 }
 
 // ============================================================
