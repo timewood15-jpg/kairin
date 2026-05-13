@@ -154,6 +154,7 @@ async function handleOCR(bot, chatId, user, photo) {
     // ================================
     // 💾 SAVE SESSION
     // ================================
+    console.log('🔥 SESSION DATA:', cleanParsed);
     await sessionRepo.createOcrSession(user.id, {
       step: 'confirm',
       data: {
