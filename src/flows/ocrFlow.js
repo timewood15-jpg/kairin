@@ -160,7 +160,11 @@ async function handleOCR(bot, chatId, user, photo) {
         amount: cleanParsed.amount,
         description: cleanParsed.description,
         category: cleanParsed.category,
-        type: cleanParsed.type
+        type: cleanParsed.type,
+
+        merchant: cleanParsed.merchant || null,
+        bill_date: cleanParsed.bill_date || null,
+        bill_items: cleanParsed.bill_items || []
       }
     });
 

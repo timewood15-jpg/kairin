@@ -80,6 +80,11 @@ async function handleOCRSession(bot, chatId, user, input, ocrSession) {
       amount: trx.amount,
       description: trx.description,
       category: trx.category,
+
+      merchant: trx.merchant || null,
+      bill_date: trx.bill_date || null,
+      bill_items: trx.bill_items || [],
+
       source: 'ocr',
       transactedAt: new Date().toISOString()
     });
