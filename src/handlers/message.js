@@ -6,6 +6,7 @@ const { handleHari } = require('../commands/hari');
 const { handleDompet } = require('../commands/dompet');
 const { handleSaldo } = require('../commands/saldo');
 const { handleStart } = require('../commands/start');
+const { handleDetail } = require('../commands/detail');
 const { handleEdit, handleHapus, handleEditSession, hasEditSession} = require('./edit');
 const db = require('../services/database');
 const { handleTextTransaction } = require('../flows/transactionFlow');
@@ -120,6 +121,9 @@ async function handleCommand(bot, chatId, user, cmd) {
       break;
     case '/hapus':
       await handleHapus(bot, chatId, user);
+      break;
+    case '/detail':
+      await handleDetail(bot, chatId, user, cmd);
       break;
     case '/batal':
       await bot.sendMessage(chatId, '❌ Tidak ada yang dibatalkan.');

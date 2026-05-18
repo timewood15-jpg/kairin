@@ -15,8 +15,13 @@ async function getMonthlySummary(userId) {
   return db.getMonthlySummary(userId);
 }
 
+async function getTransactionById(userId, id) {
+  return db.getTransactionById(id, userId);
+}
+
 module.exports = {
   saveTransaction,
   getAllTransactions,
-  getMonthlySummary
+  getMonthlySummary,
+  getTransactionById
 };
