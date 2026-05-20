@@ -8,6 +8,7 @@ const { handleSaldo } = require('../commands/saldo');
 const { handleStart } = require('../commands/start');
 const { handleDetail } = require('../commands/detail');
 const { handleEdit, handleHapus, handleEditSession, hasEditSession} = require('./edit');
+const { handleRiwayat } = require('../commands/riwayat');
 const db = require('../services/database');
 const { handleTextTransaction } = require('../flows/transactionFlow');
 const { handleAI } = require('../flows/aiFlow');
@@ -127,6 +128,9 @@ async function handleCommand(bot, chatId, user, cmd) {
       break;
     case '/batal':
       await bot.sendMessage(chatId, '❌ Tidak ada yang dibatalkan.');
+      break;
+    case '/riwayat':
+      await handleRiwayat(bot, chatId, user);
       break;  
     default:
       await bot.sendMessage(chatId, '❓ Perintah tidak dikenal. Ketik /help untuk bantuan.');

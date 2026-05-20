@@ -450,6 +450,21 @@ async function getAllTransactions(user_id) {
   return data;
 }
 
+async function getLastTransactions(userId, limit = 5) {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', {
+      ascending: false
+    })
+    .limit(limit);
+
+  if (error) throw error;
+
+  return data || [];
+}
+
 module.exports = {
   supabase,
   getOrCreateUser,
@@ -475,5 +490,6 @@ module.exports = {
   saveSpreadsheetId,
   getGoogleToken,
   getTransactionsForSheet,
-  getAllTransactions
+  getAllTransactions,
+  getLastTransactions
 };
