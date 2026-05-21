@@ -13,6 +13,7 @@ async function handleRiwayat(bot, chatId, user) {
     return;
   }
 
+  //trigger push
   // simpan session sementara
   await sessionRepo.createSession(user.id, {
     step: 'history_select',
