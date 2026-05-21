@@ -15,7 +15,7 @@ async function handleRiwayat(bot, chatId, user) {
 
   //trigger push
   // simpan session sementara
-  await sessionRepo.createSession(user.id, {
+  await sessionRepo.createEditSession(user.id, {
     step: 'history_select',
     transactions
   });
