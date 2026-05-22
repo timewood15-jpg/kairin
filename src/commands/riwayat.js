@@ -28,7 +28,8 @@ async function handleRiwayat(bot, chatId, user) {
       `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
   });
 
-  msg += 'Balas angka *1–5* untuk lihat detail.';
+  msg +=  'Ketik:\n' +
+  '`/detail 1` s/d `/detail 5`';
 
   await bot.sendMessage(chatId, msg, {
     parse_mode: 'Markdown'
