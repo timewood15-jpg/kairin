@@ -3,7 +3,6 @@ const db = require('../database');
 // ===== OCR SESSION =====
 
 async function createOcrSession(userId, data) {
-  // simpan ke memory sementara (simple fix dulu)
   global.ocrSessions = global.ocrSessions || {};
   global.ocrSessions[userId] = data;
 }
@@ -21,15 +20,18 @@ async function deleteOcrSession(userId) {
 // ===== EDIT SESSION =====
 
 async function createEditSession(userId, data) {
-  return db.createEditSession(userId, data);
+  global.editSessions = global.editSessions || {};
+  global.editSessions[userId] = data;
 }
 
 async function getEditSession(userId) {
-  return db.getEditSession(userId);
+  return global.editSessions?.[userId] || null;
 }
 
 async function deleteEditSession(userId) {
-  return db.deleteEditSession(userId);
+  if (global.editSessions) {
+    delete global.editSessions[userId];
+  }
 }
 
 module.exports = {
