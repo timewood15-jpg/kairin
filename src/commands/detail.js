@@ -1,22 +1,38 @@
 const transactionRepo = require('../services/db/transactionRepo');
+const sessionRepo = require('../services/db/sessionRepo');
 
 async function handleDetail(bot, chatId, user, text) {
-  const id = parseInt(text.split(' ')[1]);
 
-  if (!id) {
+  // ambil nomor dari "/detail 2"
+  const args = text.split(' ').slice(1);
+  const index = parseInt(args[0]);
+
+  if (!index || index < 1 || index > 5) {
     await bot.sendMessage(
       chatId,
-      '❌ Format:\n/detail ID\n\nContoh:\n/detail 154'
+      '❌ Pilih nomor 1-5 dari /riwayat'
     );
     return;
   }
 
-  const trx = await transactionRepo.getTransactionById(user.id, id);
+  const session =
+    await sessionRepo.getEditSession(user.id);
+
+  if (!session?.transactions) {
+    await bot.sendMessage(
+      chatId,
+      '❌ Jalankan /riwayat dulu'
+    );
+    return;
+  }
+
+  const trx =
+    session.transactions[index - 1];
 
   if (!trx) {
     await bot.sendMessage(
       chatId,
-      '❌ Transaksi tidak ditemukan'
+      '❌ Data tidak ditemukan'
     );
     return;
   }
@@ -35,6 +51,7 @@ async function handleDetail(bot, chatId, user, text) {
         `${item.qty > 1 ? ` x${item.qty}` : ''}` +
         ` — Rp ${(item.total_price || 0).toLocaleString('id-ID')}\n`;
     });
+
   } else {
     message += 'Tidak ada detail item';
   }

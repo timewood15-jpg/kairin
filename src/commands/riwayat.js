@@ -4,7 +4,7 @@ const sessionRepo = require('../services/db/sessionRepo');
 async function handleRiwayat(bot, chatId, user) {
   const transactions =
     await transactionRepo.getLastTransactions(user.id, 5);
-
+  
   if (!transactions.length) {
     await bot.sendMessage(
       chatId,
@@ -13,7 +13,6 @@ async function handleRiwayat(bot, chatId, user) {
     return;
   }
 
-  //trigger push
   // simpan session sementara
   await sessionRepo.createEditSession(user.id, {
     step: 'history_select',
@@ -25,7 +24,7 @@ async function handleRiwayat(bot, chatId, user) {
   transactions.forEach((trx, index) => {
     msg +=
       `${index + 1}. ` +
-      `${trx.description}\n` +
+      `${trx.merchant || trx.description}\n` +
       `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
   });
 
