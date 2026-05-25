@@ -16,7 +16,7 @@ async function handleDetail(bot, chatId, user, text) {
   }
 
   const session =
-    await sessionRepo.getEditSession(user.id);
+    await sessionRepo.getEditSession(user.telegram_id);
 
   if (!session?.transactions) {
     await bot.sendMessage(

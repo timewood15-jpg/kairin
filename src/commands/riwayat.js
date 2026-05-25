@@ -14,7 +14,7 @@ async function handleRiwayat(bot, chatId, user) {
   }
 
   // simpan session sementara
-  await sessionRepo.createEditSession(user.id, {
+  await sessionRepo.createEditSession(user.telegram_id, {
     step: 'history_select',
     transactions
   });
