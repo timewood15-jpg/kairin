@@ -4,16 +4,20 @@ const db = require('../database');
 
 async function createOcrSession(userId, data) {
   global.ocrSessions = global.ocrSessions || {};
-  global.ocrSessions[userId] = data;
+  global.ocrSessions[String(userId)] = data;
 }
 
 async function getOcrSession(userId) {
-  return global.ocrSessions?.[userId] || null;
+  return global.ocrSessions?.[
+    String(userId)
+  ] || null;
 }
 
 async function deleteOcrSession(userId) {
   if (global.ocrSessions) {
-    delete global.ocrSessions[userId];
+    delete global.ocrSessions[
+      String(userId)
+    ];
   }
 }
 
@@ -21,16 +25,36 @@ async function deleteOcrSession(userId) {
 
 async function createEditSession(userId, data) {
   global.editSessions = global.editSessions || {};
-  global.editSessions[userId] = data;
+  global.editSessions[String(userId)] = data;
+
+  console.log(
+    '💾 SAVE SESSION:',
+    String(userId),
+    data
+  );
 }
 
 async function getEditSession(userId) {
-  return global.editSessions?.[userId] || null;
+
+  const session =
+    global.editSessions?.[
+      String(userId)
+    ] || null;
+
+  console.log(
+    '📦 GET SESSION:',
+    String(userId),
+    session
+  );
+
+  return session;
 }
 
 async function deleteEditSession(userId) {
   if (global.editSessions) {
-    delete global.editSessions[userId];
+    delete global.editSessions[
+      String(userId)
+    ];
   }
 }
 
