@@ -72,60 +72,74 @@ bot.on('message', async (msg) => {
 });
 
 bot.on('callback_query', async (query) => {
+  try {
 
-  const chatId = query.message.chat.id;
-  const userId = query.from.id;
+    const chatId = query.message.chat.id;
+    const userId = query.from.id;
 
-  if (query.data.startsWith('detail_')) {
+    if (query.data?.startsWith('detail_')) {
 
-    const index =
-      parseInt(query.data.split('_')[1]);
+      const index =
+        parseInt(query.data.split('_')[1]);
 
-    const sessionRepo =
-      require('./services/db/sessionRepo');
+      const sessionRepo =
+        require('./services/db/sessionRepo');
 
-    const session =
-      await sessionRepo.getEditSession(userId);
+      const session =
+        await sessionRepo.getEditSession(userId);
 
-    if (!session?.transactions) {
-      await bot.answerCallbackQuery(query.id, {
-        text: 'Jalankan /riwayat dulu'
-      });
-      return;
-    }
+      if (!session?.transactions) {
+        await bot.answerCallbackQuery(query.id, {
+          text: 'Jalankan /riwayat dulu'
+        });
+        return;
+      }
 
-    const trx =
-      session.transactions[index];
+      const trx =
+        session.transactions[index];
 
-    if (!trx) return;
+      if (!trx) {
+        await bot.answerCallbackQuery(query.id, {
+          text: 'Transaksi tidak ditemukan'
+        });
+        return;
+      }
 
-    let message =
-      `🧾 ${trx.merchant || trx.description}\n` +
-      `📅 ${trx.bill_date || '-'}\n` +
-      `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
+      let message =
+        `🧾 ${trx.merchant || trx.description}\n` +
+        `📅 ${trx.bill_date || '-'}\n` +
+        `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
 
-    if (trx.bill_items?.length > 0) {
-      message +=
-        `🛒 ${trx.bill_items.length} item\n\n`;
-
-      trx.bill_items
-        .slice(0, 15)
-        .forEach(item => {
+      if (trx.bill_items?.length > 0) {
 
         message +=
-          `• ${item.name}` +
-          `${item.qty > 1 ? ` x${item.qty}` : ''}` +
-          ` — Rp ${(item.total_price || 0)
-            .toLocaleString('id-ID')}\n`;
-      });
+          `🛒 ${trx.bill_items.length} item\n\n`;
 
-    } else {
-      message += 'Tidak ada detail item';
+        trx.bill_items
+          .slice(0, 15)
+          .forEach(item => {
+
+            message +=
+              `• ${item.name}` +
+              `${item.qty > 1 ? ` x${item.qty}` : ''}` +
+              ` — Rp ${(item.total_price || 0)
+                .toLocaleString('id-ID')}\n`;
+          });
+
+      } else {
+        message += 'Tidak ada detail item';
+      }
+
+      await bot.sendMessage(chatId, message);
+
+      await bot.answerCallbackQuery(query.id);
     }
 
-    await bot.sendMessage(chatId, message);
-
-    await bot.answerCallbackQuery(query.id);
+  } catch (err) {
+    console.error(
+      '❌ CALLBACK ERROR:',
+      err
+    );
   }
 });
 
