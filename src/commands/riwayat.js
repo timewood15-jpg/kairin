@@ -40,7 +40,20 @@ async function handleRiwayat(bot, chatId, user) {
   await bot.sendMessage(chatId, msg, {
     parse_mode: 'Markdown',
     reply_markup: {
-      inline_keyboard: buttons
+      inline_keyboard: transactions.map(
+      (trx, index) => [
+        {
+          text:
+            `${index + 1}. ${
+              trx.merchant ||
+              trx.description
+                .slice(0, 20)
+            }`,
+          callback_data:
+            `detail_${index}`
+        }
+      ]
+    )
     }
   });
 }
