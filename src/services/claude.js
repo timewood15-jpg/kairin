@@ -246,35 +246,73 @@ Buat pesan BANGGA dan MOTIVASI. Maksimal 2 kalimat. Pakai emoji.`,
 // ============================================================
 async function chatWithAI(userQuestion, financialContext) {
   try {
-    const prompt = `Kamu adalah Kairin, asisten keuangan AI pribadi yang friendly dan pintar.
-Kamu berbicara dengan ${financialContext.userName}.
+    const topCategories =
+      (financialContext.topCategories || [])
+      .map(([name, amount]) =>
+        `${name}: Rp ${amount.toLocaleString('id-ID')}`
+      )
+      .join(', ') || 'Belum ada';
+
+    const prompt = `
+Kamu adalah Kairin, asisten keuangan AI pribadi Indonesia.
+Gaya bicara ramah, santai, helpful, seperti teman yang pintar soal keuangan.
+
+Kamu sedang berbicara dengan:
+${financialContext.userName}
 
 DATA KEUANGAN USER (bulan ini):
-- Pemasukan: Rp ${financialContext.income?.toLocaleString('id-ID') || 0}
-- Pengeluaran: Rp ${financialContext.expense?.toLocaleString('id-ID') || 0}
-- Saldo: Rp ${financialContext.balance?.toLocaleString('id-ID') || 0}
-- Top kategori: ${JSON.stringify(financialContext.topCategories || [])}
-- Total transaksi: ${financialContext.totalTransactions || 0}
+- Pemasukan:
+Rp ${financialContext.income?.toLocaleString('id-ID') || 0}
 
-DETAIL TRANSAKSI:
-${JSON.stringify(financialContext.transactions || [], null, 2)}
+- Pengeluaran:
+Rp ${financialContext.expense?.toLocaleString('id-ID') || 0}
 
-PERTANYAAN: "${userQuestion}"
+- Saldo:
+Rp ${financialContext.balance?.toLocaleString('id-ID') || 0}
 
-PENTING — Cara cari data:
-- Kalau user tanya nama tempat/merchant → cek field "merchant" di setiap transaksi
-- Kalau user tanya item makanan → cek field "items" dan "description"
-- Kalau user tanya tanggal → cek field "date"
-- Cari dengan case-insensitive (Padang = padang = PADANG)
+- Top kategori:
+${topCategories}
 
-Jawab berdasarkan DATA DI ATAS. Bahasa Indonesia casual, friendly, 
-maksimal 4-5 kalimat, pakai emoji.`;
+- Total transaksi:
+${financialContext.totalTransactions || 0}
+
+RIWAYAT TRANSAKSI USER:
+${JSON.stringify(
+  financialContext.transactions || [],
+  null,
+  2
+)}
+
+PERTANYAAN USER:
+"${userQuestion}"
+
+ATURAN WAJIB:
+1. Selalu cari jawaban di data transaksi terlebih dahulu.
+2. Cocokkan keyword user dengan:
+   - description
+   - merchant
+   - category
+   - items[].name
+3. Pencarian tidak case-insensitive
+   (mouse = Mouse = MOUSE).
+4. Jika transaksi ditemukan:
+   - sebutkan deskripsi
+   - nominal
+   - tanggal transaksi
+5. Jangan bilang "tidak ada"
+   sebelum benar-benar cek transaksi.
+6. Jangan mengarang data.
+7. Jika tidak ditemukan, katakan dengan jujur.
+
+Jawab singkat, ramah, natural,
+maksimal 4 kalimat, boleh pakai emoji.
+`;
 
     return await generate(prompt);
 
   } catch (error) {
     console.error('Gemini chat error:', error.message);
-    return 'Maaf, saya sedang tidak bisa menjawab. Coba lagi ya! 🙏';
+    return 'Maaf, saya sedang tidak bisa menjawab 🙏';
   }
 }
 
