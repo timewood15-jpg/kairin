@@ -21,18 +21,27 @@ async function handleRiwayat(bot, chatId, user) {
 
   let msg = '📒 *5 transaksi terakhir*\n\n';
 
+  const buttons = [];
+
   transactions.forEach((trx, index) => {
     msg +=
       `${index + 1}. ` +
       `${trx.merchant || trx.description}\n` +
       `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
+
+    buttons.push([
+      {
+        text: `${index + 1}️⃣ ${trx.merchant || 'Detail'}`,
+        callback_data: `detail_${index}`
+      }
+    ]);
   });
 
-  msg +=  'Ketik:\n' +
-  '`/detail 1` s/d `/detail 5`';
-
   await bot.sendMessage(chatId, msg, {
-    parse_mode: 'Markdown'
+    parse_mode: 'Markdown',
+    reply_markup: {
+      inline_keyboard: buttons
+    }
   });
 }
 

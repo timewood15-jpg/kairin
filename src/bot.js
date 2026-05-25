@@ -71,6 +71,64 @@ bot.on('message', async (msg) => {
   }
 });
 
+bot.on('callback_query', async (query) => {
+
+  const chatId = query.message.chat.id;
+  const userId = query.from.id;
+
+  if (query.data.startsWith('detail_')) {
+
+    const index =
+      parseInt(query.data.split('_')[1]);
+
+    const sessionRepo =
+      require('./services/db/sessionRepo');
+
+    const session =
+      await sessionRepo.getEditSession(userId);
+
+    if (!session?.transactions) {
+      await bot.answerCallbackQuery(query.id, {
+        text: 'Jalankan /riwayat dulu'
+      });
+      return;
+    }
+
+    const trx =
+      session.transactions[index];
+
+    if (!trx) return;
+
+    let message =
+      `🧾 ${trx.merchant || trx.description}\n` +
+      `📅 ${trx.bill_date || '-'}\n` +
+      `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
+
+    if (trx.bill_items?.length > 0) {
+      message +=
+        `🛒 ${trx.bill_items.length} item\n\n`;
+
+      trx.bill_items
+        .slice(0, 15)
+        .forEach(item => {
+
+        message +=
+          `• ${item.name}` +
+          `${item.qty > 1 ? ` x${item.qty}` : ''}` +
+          ` — Rp ${(item.total_price || 0)
+            .toLocaleString('id-ID')}\n`;
+      });
+
+    } else {
+      message += 'Tidak ada detail item';
+    }
+
+    await bot.sendMessage(chatId, message);
+
+    await bot.answerCallbackQuery(query.id);
+  }
+});
+
 bot.on('polling_error', (error) => {
   console.error('Polling error:', error.message);
 });
