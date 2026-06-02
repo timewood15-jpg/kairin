@@ -12,11 +12,8 @@ require('dotenv').config();
 // ✅ TAMBAHAN: Google OAuth
 const { google } = require('googleapis');
 
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-);
+const googleAuth =
+  require('./services/google/auth');
 
 //oauth2Client.on('tokens', async (tokens) => {
 //  console.log('🔄 REFRESH TOKEN:', tokens);
@@ -46,17 +43,8 @@ console.log('📱 Bot: @KairinAppBot');
   bot.onText(/\/connect-sheet/, async (msg) => {
     const chatId = msg.chat.id;
 
-    const scopes = [
-      'https://www.googleapis.com/auth/spreadsheets',
-      'https://www.googleapis.com/auth/drive.file'
-    ];
-
-    const url = oauth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: scopes,
-      prompt: 'consent',
-      state: chatId.toString() // 🔥 INI PENTING
-    });
+    const url =
+      googleAuth.generateAuthUrl(chatId);
 
   await bot.sendMessage(chatId, `🔗 Hubungkan Google Sheet kamu:\n\n${url}`);
 });
@@ -166,8 +154,14 @@ app.get('/auth/google/callback', async (req, res) => {
     const code = req.query.code;
 
     // 1. tukar code → token
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
+    const tokens =
+      await googleAuth
+        .exchangeCodeForTokens(code);
+
+    const authClient =
+      googleAuth.getGoogleAuth();
+
+    authClient.setCredentials(tokens);
     console.log('TOKENS:', tokens);
 
     // 2. ambil chatId
@@ -175,7 +169,7 @@ app.get('/auth/google/callback', async (req, res) => {
     console.log('USER TELEGRAM:', chatId);
 
     // 3. buat sheet DULU
-    const spreadsheetId = await createSheet(oauth2Client);
+    const spreadsheetId = await createSheet(authClient);
 
     // 4. simpan SEKALIGUS
     await db.saveGoogleToken({

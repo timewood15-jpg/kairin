@@ -11,7 +11,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 // ============================================================
 async function generate(prompt) {
   const response = await ai.models.generateContent({
-    model: GEMINI_FLASH_MODEL,
+    model: AI_MODEL_NAME,
     contents: prompt,
   });
   return response.text;
@@ -332,7 +332,7 @@ async function generateWithImage(prompt, imageBuffer) {
   console.log('🖼️ Detected mimeType:', mimeType, '| Size:', imageBuffer.length, 'bytes');
 
   const response = await ai.models.generateContent({
-    model: GEMINI_FLASH_MODEL,
+    model: AI_MODEL_NAME,
     contents: [
       {
         parts: [                          // ← pakai "parts" array
