@@ -2,6 +2,8 @@
 // Menggunakan Google Gemini API v0.24.1
 const { GoogleGenAI } = require('@google/genai');
 const { withRetry } = require('./aiRetry');
+const { AI_RETRY_OCR_COUNT, AI_RETRY_OCR_DELAY_MS, AI_RETRY_PARSE_TEXT_COUNT, AI_RETRY_PARSE_TEXT_DELAY_MS, AI_DEFAULT_CATEGORY, AI_EXPENSE_TYPE, AI_INCOME_TYPE, AI_TRANSACTION_CATEGORIES, AI_MODEL_NAME } = require('../config/constants');
+
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // ============================================================
@@ -9,7 +11,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 // ============================================================
 async function generate(prompt) {
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: GEMINI_FLASH_MODEL,
     contents: prompt,
   });
   return response.text;
@@ -74,8 +76,8 @@ PENTING:
 
     // 🔥 retry lebih hemat + stop kalau quota habis
     const response = await withRetry(() => generateWithImage(prompt, imageBuffer), {
-      retries: 1, // cukup 1
-      delay: 1200
+      retries: AI_RETRY_OCR_COUNT, // cukup 1
+      delay: AI_RETRY_OCR_DELAY_MS
     });
 
     if (!response) return null;
@@ -101,8 +103,8 @@ PENTING:
       description: (data.description || '').trim(),
       merchant: (data.merchant || '').trim(),
       bill_date: data.bill_date || null,
-      category: (data.category || 'Lain-lain').trim(),
-      type: 'pengeluaran',
+      category: (data.category || AI_DEFAULT_CATEGORY).trim(),
+      type: AI_EXPENSE_TYPE,
       items: Array.isArray(data.items) ? data.items : []
     };
 
@@ -172,8 +174,8 @@ Aturan:
     
 
 const response = await withRetry(() => generate(prompt), {
-  retries: 2,
-  delay: 1000
+  retries: AI_RETRY_PARSE_TEXT_COUNT,
+  delay: AI_RETRY_PARSE_TEXT_DELAY_MS
 });
 
 if (!response) return null;
@@ -187,7 +189,7 @@ if (!response) return null;
 
    if (!amount || isNaN(amount)) return null;
 
-   const type = data.type === 'pemasukan' ? 'pemasukan' : 'pengeluaran';
+   const type = data.type === AI_INCOME_TYPE ? AI_INCOME_TYPE : AI_EXPENSE_TYPE;
 
    return {
      type,
@@ -330,7 +332,7 @@ async function generateWithImage(prompt, imageBuffer) {
   console.log('🖼️ Detected mimeType:', mimeType, '| Size:', imageBuffer.length, 'bytes');
 
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: GEMINI_FLASH_MODEL,
     contents: [
       {
         parts: [                          // ← pakai "parts" array
