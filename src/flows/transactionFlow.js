@@ -1,6 +1,13 @@
 const transactionRepo = require('../services/db/transactionRepo');
 const ai = require('../services/claude');
 const { parseOfflineTransaction } = require('../utils/parser');
+const db = require('../services/database');
+const googleAuth =
+  require('../services/google/auth');
+
+const {
+  appendToSheet
+} = require('../services/google/sheets');
 
 async function handleTextTransaction(bot, chatId, user, text) {
 
@@ -50,6 +57,58 @@ async function handleTextTransaction(bot, chatId, user, text) {
     source: 'text',
     transactedAt: new Date().toISOString()
   });
+
+  // 🔥 Sync ke Google Sheet (optional)
+try {
+  const googleToken =
+    await db.getGoogleToken(user.id);
+
+  if (googleToken?.spreadsheet_id) {
+
+    console.log('📄 APPEND SHEET START');
+
+    const authClient =
+      googleAuth.getGoogleAuth();
+
+    authClient.setCredentials({
+      access_token:
+        googleToken.access_token,
+
+      refresh_token:
+        googleToken.refresh_token
+    });
+
+    await appendToSheet(
+      authClient,
+      googleToken.spreadsheet_id,
+      {
+        tanggal:
+          new Date()
+            .toLocaleDateString('id-ID'),
+
+        keterangan:
+          parsed.description,
+
+        jumlah:
+          parsed.amount,
+
+        kategori:
+          parsed.category
+      }
+    );
+
+    console.log(
+      '✅ APPEND SUCCESS'
+    );
+  }
+
+} catch (err) {
+
+  console.error(
+    '❌ APPEND SHEET ERROR:',
+    err.message
+  );
+}
 
   await bot.sendMessage(chatId,
     `${parsed.type === 'pemasukan' ? '🟢' : '🔴'} *${parsed.type.toUpperCase()}*\n\n` +
