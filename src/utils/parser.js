@@ -4,10 +4,10 @@ function parseOfflineTransaction(text) {
   const input = text.toLowerCase().trim();
 
   // 🔢 ambil angka + unit
-  const match = input.match(/(\d+[\.,]?\d*)\s*(rb|ribu|k|jt|juta)?/i);
+  const match = input.match(/([\d.,]+)\s*(rb|ribu|k|jt|juta)?/i);
   if (!match) return null;
 
-  let amount = parseFloat(match[1].replace(',', '.'));
+  let amount = parseFloat(match[1].replace(/\./g, '').replace(',', '.'));
 
   const unit = match[2];
 
@@ -47,7 +47,7 @@ function parseOfflineTransaction(text) {
   }
 
   let description = input
-    .replace(/(\d+[\.,]?\d*)\s*(rb|ribu|k|jt|juta)?/gi, '') // hapus angka + unit
+    .replace(/([\d.,]+)\s*(rb|ribu|k|jt|juta)?/gi, '') // hapus angka + unit
     .trim();
 
   if (!description) {
