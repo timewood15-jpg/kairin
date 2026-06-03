@@ -58,6 +58,16 @@ async function handleTextTransaction(bot, chatId, user, text) {
     transactedAt: new Date().toISOString()
   });
 
+console.log('🔥 AFTER SAVE');
+
+const googleToken =
+  await db.getGoogleToken(user.id);
+
+console.log(
+  '🧪 GOOGLE TOKEN:',
+  googleToken
+);
+
   // 🔥 Sync ke Google Sheet (optional)
 try {
   const googleToken =
