@@ -1,3 +1,5 @@
+const parserRules = require('../config/parserRules');
+
 function parseOfflineTransaction(text) {
   if (!text) return null;
 
@@ -21,37 +23,20 @@ function parseOfflineTransaction(text) {
 
   if (!amount || isNaN(amount)) return null;
 
-  // 💰 DETEKSI TYPE (explicit override untuk kasus ambigu)
-  const expenseExplicit = [
-    'bayar hutang',
-    'modal usaha',
-    'setor tabungan',
-    'transfer ke'
-  ];
+  const expenseExplicit = parserRules.expenseExplicit;
 
-  const incomeExplicit = [
-    'refund',
-    'dibayarin',
-    'utang dibayar',
-    'transfer dari'
-  ];
+  const incomeExplicit = parserRules.incomeExplicit;
 
   const isExpense = expenseExplicit.some(k => input.includes(k));
   const isIncome = isExpense
     ? false
     : incomeExplicit.some(k => input.includes(k)) ||
-      ['gaji', 'honor', 'bonus', 'masuk', 'terima', 'dapat', '+']
-          .some(k => input.includes(k));
+      parserRules.incomeKeywords.some(k => input.includes(k));
 
   const type = isIncome ? 'pemasukan' : 'pengeluaran';
 
   // 🏷️ DETEKSI KATEGORI SEDERHANA
-  const categoryMap = {
-    makanan: ['makan', 'kopi', 'minum', 'resto'],
-    transportasi: ['bensin', 'grab', 'gojek', 'tol'],
-    belanja: ['beli', 'shop', 'market'],
-    utilitas: ['listrik', 'air', 'wifi', 'internet'],
-  };
+  const categoryMap = parserRules.categoryMap;
 
   let category = 'Lain-lain';
 
