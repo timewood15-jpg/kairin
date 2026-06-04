@@ -57,7 +57,7 @@ async function handleTextTransaction(bot, chatId, user, text) {
 
   if (isDuplicateTransaction(fingerprint)) {
     await bot.sendMessage(chatId, ' Transaksi mirip baru saja tercatat. Tidak disimpan ulang.');
-    return false;
+    return true;
   }
 
   const trx = await transactionRepo.saveTransaction(user.id, {
