@@ -3,14 +3,43 @@ const parserRules = require('../config/parserRules');
 function parseOfflineTransaction(text) {
   if (!text) return null;
 
-  const input = text.toLowerCase().trim().replace(/(\d)\s+([.,]\d)/g, '$1$2')
-  .replace(/([.,])\s+(\d)/g, '$1$2');
+  const textLower = text.toLowerCase().trim().replace(/(\d)\s+([.,]\d)/g, '$1$2')
+    .replace(/([.,])\s+(\d)/g, '$1$2');
+  const input = textLower;
 
   // 🔢 ambil angka + unit
   const match = input.match(/([\d.,]+)\s*(rb|ribu|k|jt|juta)?/i);
   if (!match) return null;
 
-  let amount = parseFloat(match[1].replace(/\./g, '').replace(',', '.'));
+  // Normalisasi angka Indonesia menggunakan HANYA match[1]
+  let raw = match[1];
+  if (raw.includes(',') && raw.includes('.')) {
+    raw = raw.replace(/\./g, '').replace(',', '.');
+  } else if (raw.includes(',')) {
+    const afterComma = raw.slice(raw.lastIndexOf(',') + 1);
+    const suffixAfterComma = afterComma.trim();
+    const digitsOnly = suffixAfterComma.replace(/[^\d]/g, '');
+    if (digitsOnly.length === 3 && digitsOnly.length === suffixAfterComma.length) {
+      raw = raw.replace(/,/g, '');
+    } else if (digitsOnly.length <= 2 && digitsOnly.length === suffixAfterComma.length) {
+      raw = raw.replace(',', '.');
+    } else {
+      raw = raw.replace(',', '.');
+    }
+  } else if (raw.includes('.')) {
+    const afterDot = raw.slice(raw.lastIndexOf('.') + 1);
+    const suffixAfterDot = afterDot.trim();
+    const digitsOnly = suffixAfterDot.replace(/[^\d]/g, '');
+    if (digitsOnly.length === 3 && digitsOnly.length === suffixAfterDot.length) {
+      raw = raw.replace(/\./g, '');
+    } else if (digitsOnly.length <= 2) {
+      // keep dot as decimal, parseFloat handles it
+    } else {
+      raw = raw.replace(/\./g, '');
+    }
+  }
+
+  let amount = parseFloat(raw);
 
   const unit = match[2];
 
