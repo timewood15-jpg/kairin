@@ -21,12 +21,27 @@ function parseOfflineTransaction(text) {
 
   if (!amount || isNaN(amount)) return null;
 
-  // 💰 DETEKSI TYPE
-  const pemasukanKeywords = [
-    'gaji', 'honor', 'bonus', 'masuk', 'terima', 'dapat', '+'
+  // 💰 DETEKSI TYPE (explicit override untuk kasus ambigu)
+  const expenseExplicit = [
+    'bayar hutang',
+    'modal usaha',
+    'setor tabungan',
+    'transfer ke'
   ];
 
-  const isIncome = pemasukanKeywords.some(k => input.includes(k));
+  const incomeExplicit = [
+    'refund',
+    'dibayarin',
+    'utang dibayar',
+    'transfer dari'
+  ];
+
+  const isExpense = expenseExplicit.some(k => input.includes(k));
+  const isIncome = isExpense
+    ? false
+    : incomeExplicit.some(k => input.includes(k)) ||
+      ['gaji', 'honor', 'bonus', 'masuk', 'terima', 'dapat', '+']
+          .some(k => input.includes(k));
 
   const type = isIncome ? 'pemasukan' : 'pengeluaran';
 
