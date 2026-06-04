@@ -93,8 +93,8 @@ try {
     await db.getGoogleToken(chatId);
 
   console.log(
-  '🧪 GOOGLE TOKEN:',
-  googleToken
+    ' GOOGLE CONNECTED:',
+    !!googleToken?.spreadsheet_id
   );
 
   if (googleToken?.spreadsheet_id) {
