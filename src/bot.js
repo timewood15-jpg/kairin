@@ -126,7 +126,7 @@ bot.on('callback_query', async (query) => {
   } catch (err) {
     console.error(
       '❌ CALLBACK ERROR:',
-      err
+      err.message
     );
   }
 });
@@ -162,7 +162,7 @@ app.get('/auth/google/callback', async (req, res) => {
       googleAuth.getGoogleAuth();
 
     authClient.setCredentials(tokens);
-    console.log('TOKENS:', tokens);
+    console.log('✅ Token exchange completed');
 
     // 2. ambil chatId
     const chatId = Number(req.query.state);
@@ -181,7 +181,7 @@ app.get('/auth/google/callback', async (req, res) => {
 
     res.send('✅ Google berhasil terhubung! Silakan kembali ke Telegram 🎉');
   } catch (err) {
-    console.error(err);
+    console.error('❌ OAuth callback error:', err.message);
     res.send('❌ Gagal connect Google');
   }
 });

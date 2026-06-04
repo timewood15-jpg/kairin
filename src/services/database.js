@@ -443,7 +443,7 @@ async function getAllTransactions(user_id) {
     .eq('user_id', user_id);
 
   if (error) {
-    console.error(error);
+    console.error('❌ Error getAllTransactions:', error.message);
     return [];
   }
 
