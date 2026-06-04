@@ -2,6 +2,27 @@ const transactionRepo = require('../services/db/transactionRepo');
 const ai = require('../services/claude');
 const { parseOfflineTransaction } = require('../utils/parser');
 
+// Duplicate prevention: in-memory fingerprint (10s TTL)
+const transactionFingerprints = new Map();
+
+function isDuplicateTransaction(fingerprint, ttlMs = 10000) {
+  const now = Date.now();
+  // cleanup expired entries
+  for (const [key, timestamp] of transactionFingerprints.entries()) {
+    if (now - timestamp > ttlMs) {
+      transactionFingerprints.delete(key);
+    }
+  }
+  if (
+    transactionFingerprints.has(fingerprint) &&
+    now - transactionFingerprints.get(fingerprint) < ttlMs
+  ) {
+    return true;
+  }
+  transactionFingerprints.set(fingerprint, now);
+  return false;
+}
+
 function validateAmount(text, amount) {
   if (!text || !amount || amount <= 0) return true;
   const lower = text
@@ -77,6 +98,14 @@ async function handleTextTransaction(bot, chatId, user, text) {
     category: parsed.category,
     type: parsed.type
   });
+
+  const fingerprint =
+`${user.id}:${parsed.type}:${parsed.amount}:${parsed.description.trim().toLowerCase()}`;
+
+  if (isDuplicateTransaction(fingerprint)) {
+    await bot.sendMessage(chatId, ' Transaksi mirip baru saja tercatat. Tidak disimpan ulang.');
+    return false;
+  }
 
   const trx = await transactionRepo.saveTransaction(user.id, {
     type: parsed.type,
@@ -154,4 +183,4 @@ try {
   return true;
 }
 
-module.exports = { handleTextTransaction };
+module.exports = { handleTextTransaction, transactionFingerprints };
