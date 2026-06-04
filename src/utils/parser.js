@@ -1,7 +1,8 @@
 function parseOfflineTransaction(text) {
   if (!text) return null;
 
-  const input = text.toLowerCase().trim();
+  const input = text.toLowerCase().trim().replace(/(\d)\s+([.,]\d)/g, '$1$2')
+  .replace(/([.,])\s+(\d)/g, '$1$2');
 
   // 🔢 ambil angka + unit
   const match = input.match(/([\d.,]+)\s*(rb|ribu|k|jt|juta)?/i);
