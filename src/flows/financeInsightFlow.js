@@ -17,7 +17,7 @@ function getFinanceContext(userId) {
 function setFinanceContext(userId, category) {
   financeContext.set(userId, {
     category,
-    expiresAt: Date.now() + 10 * 60 * 1000
+    expiresAt: Date.now() + 10 * 60 * 1000,
   });
 }
 
@@ -39,7 +39,6 @@ async function handleFinanceInsight(bot, chatId, user, input) {
 
   const t = input;
 
-  // Phase 2: deterministic breakdowns
   const breakdown =
     /\b(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+apa\s+(itu|aja|saja)\b/.test(t) ||
     /\bkategori\s+(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+apa\s+saja\b/.test(t) ||
@@ -47,7 +46,8 @@ async function handleFinanceInsight(bot, chatId, user, input) {
     /\btop\s+3\s+pengeluaran\s+bulan\s+ini\b/.test(t) ||
     /\btransaksi\s+terbesar\s+bulan\s+ini\b/.test(t) ||
     /\bpengeluaran\s+terbesar\s+apa\b/.test(t) ||
-    /\bkategori\s+\w+\s+apa\s+saja\b/.test(t);
+    /\bkategori\s+\w+\s+apa\s+saja\b/.test(t) ||
+    /\byang\s+terbesar\s+apa\b/.test(t);
 
   if (breakdown) {
     return await handleBreakdown(bot, chatId, user, input);
@@ -150,6 +150,18 @@ async function handleBreakdown(bot, chatId, user, input) {
 
   const t = input;
 
+  const catMatch = t.match(/\bkategori\s+(\w+)/);
+  const targetAlias = catMatch ? catMatch[1].toLowerCase() : null;
+
+  const aliasMatch = Object.keys(categoryAlias).find(
+    alias => new RegExp('\\b' + alias + '\\b').test(t)
+  );
+
+  const canonicalCategory =
+    (targetAlias && categoryAlias[targetAlias]) ||
+    (aliasMatch && categoryAlias[aliasMatch]) ||
+    null;
+
   if (/top\s+3/.test(t) || /transaksi\s+terbesar/.test(t) || /pengeluaran\s+terbesar\s+apa/.test(t)) {
     const expenseTrxs = transactions
       .filter(trx => trx.type === 'pengeluaran')
@@ -175,6 +187,7 @@ async function handleBreakdown(bot, chatId, user, input) {
       );
     });
     await bot.sendMessage(chatId, lines.join('\n'));
+    setFinanceContext(user.id, canonicalCategory);
     return true;
   }
 
@@ -203,54 +216,45 @@ async function handleBreakdown(bot, chatId, user, input) {
         `${canonicalCategory} • ${date}`
       ].join('\n')
     );
+    setFinanceContext(user.id, canonicalCategory);
     return true;
   }
 
-  const catMatch = t.match(/\bkategori\s+(\w+)/);
-  const targetAlias = catMatch ? catMatch[1].toLowerCase() : null;
-
-  const aliasMatch = Object.keys(categoryAlias).find(
-    alias => new RegExp('\\b' + alias + '\\b').test(t)
-  );
-
-  const canonicalCategory =
-    (targetAlias && categoryAlias[targetAlias]) ||
-    (aliasMatch && categoryAlias[aliasMatch]) ||
-    null;
-
-  if (canonicalCategory) {
-    const matched = [...transactions].filter(trx => (trx.category || '') === canonicalCategory);
-
-    if (!matched.length) {
-      await bot.sendMessage(chatId, '📭 Belum ada transaksi kategori ' + canonicalCategory + ' bulan ini.');
-      return true;
-    }
-
-    const sorted = [...matched].sort((a, b) => b.amount - a.amount);
-    const shown = sorted.slice(0, 10);
-    const overflow = Math.max(0, sorted.length - 10);
-
-    const monthLabel = new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-    const lines = ['📋 Kategori ' + canonicalCategory + ' (' + monthLabel + ')'];
-    shown.forEach((trx, idx) => {
-      lines.push(
-        (idx + 1) +
-          '. ' +
-          (trx.description || trx.note || '-') +
-          ' — Rp ' +
-          trx.amount.toLocaleString('id-ID')
-      );
-    });
-    if (overflow > 0) {
-      lines.push('+' + overflow + ' transaksi lain');
-    }
-    const total = matched.reduce((sum, trx) => sum + trx.amount, 0);
-    lines.push('💰 Total: Rp ' + total.toLocaleString('id-ID'));
-    await bot.sendMessage(chatId, lines.join('\n'));
+  if (!canonicalCategory) {
+    await bot.sendMessage(chatId, '📭 Belum ada kategori yang dikenali dari pertanyaan ini.');
     return true;
   }
 
-  return false;
+  const matched = [...transactions].filter(trx => (trx.category || '') === canonicalCategory);
+
+  if (!matched.length) {
+    await bot.sendMessage(chatId, '📭 Belum ada transaksi kategori ' + canonicalCategory + ' bulan ini.');
+    return true;
+  }
+
+  const sorted = [...matched].sort((a, b) => b.amount - a.amount);
+  const shown = sorted.slice(0, 10);
+  const overflow = Math.max(0, sorted.length - 10);
+
+  const monthLabel = new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+  const lines = ['📋 Kategori ' + canonicalCategory + ' (' + monthLabel + ')'];
+  shown.forEach((trx, idx) => {
+    lines.push(
+      (idx + 1) +
+        '. ' +
+        (trx.description || trx.note || '-') +
+        ' — Rp ' +
+        trx.amount.toLocaleString('id-ID')
+    );
+  });
+  if (overflow > 0) {
+    lines.push('+' + overflow + ' transaksi lain');
+  }
+  const total = matched.reduce((sum, trx) => sum + trx.amount, 0);
+  lines.push('💰 Total: Rp ' + total.toLocaleString('id-ID'));
+  await bot.sendMessage(chatId, lines.join('\n'));
+  setFinanceContext(user.id, canonicalCategory);
+  return true;
 }
 
 module.exports = {
