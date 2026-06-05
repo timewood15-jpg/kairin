@@ -56,11 +56,19 @@ function parseOfflineTransaction(text) {
 
   const incomeExplicit = parserRules.incomeExplicit;
 
+  const overridingIncome = parserRules.overridingIncome || [];
+
   const isExpense = expenseExplicit.some(k => input.includes(k));
-  const isIncome = isExpense
-    ? false
-    : incomeExplicit.some(k => input.includes(k)) ||
-      parserRules.incomeKeywords.some(k => input.includes(k));
+
+  const incomeMatch =
+    incomeExplicit.some(k => input.includes(k)) ||
+    parserRules.incomeKeywords.some(k => input.includes(k));
+
+  const isIncome = overridingIncome.some(k => input.includes(k))
+    ? true
+    : isExpense
+      ? false
+      : incomeMatch;
 
   const type = isIncome ? 'pemasukan' : 'pengeluaran';
 
