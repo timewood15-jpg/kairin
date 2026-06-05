@@ -4,6 +4,7 @@ const { handleEditSession, hasEditSession } = require('../handlers/edit');
 const { handleOCRSession } = require('../flows/ocrSessionFlow');
 const { handleTextTransaction } = require('../flows/transactionFlow');
 const { handleFinanceInsight } = require('../flows/financeInsightFlow');
+const { handleTransactionLookup } = require('../flows/lookupFlow');
 const { handleAI } = require('../flows/aiFlow');
 
 const { routeCommand } = require('./commandRouter');
