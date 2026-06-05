@@ -20,9 +20,50 @@ async function routeMessage(bot, chatId, user, text) {
   }
   const input = text.toLowerCase().trim();
 
+  const gated = await handleActiveSessions(
+    bot,
+    chatId,
+    user,
+    input,
+    text
+  );
+
+  if (gated) return true;
+
+  const isCommand = await routeCommand(
+   bot,
+   chatId,
+   user,
+   input
+ )
+
+ if (isCommand) {
+   return true;
+ }
+
   // ================================
-  // 🔥 OCR SESSION
+  // 🔥 TRANSACTION FLOW
   // ================================
+  const isTransaction = await handleTextTransaction(
+    bot,
+    chatId,
+    user,
+    text
+  );
+
+  if (isTransaction) {
+    return true;
+  }
+
+  // ================================
+  // 🔥 AI FALLBACK
+  // ================================
+  await handleAI(bot, chatId, user, text);
+
+  return true;
+}
+
+async function handleActiveSessions(bot, chatId, user, input, text) {
   const ocrSession = await sessionRepo.getOcrSession(user.id);
 
   if (ocrSession) {
@@ -51,37 +92,7 @@ async function routeMessage(bot, chatId, user, text) {
     if (handled) return true;
   }
 
-   const isCommand = await routeCommand(
-   bot,
-   chatId,
-   user,
-   input
- );
-
- if (isCommand) {
-   return true;
- }
-
-  // ================================
-  // 🔥 TRANSACTION FLOW
-  // ================================
-  const isTransaction = await handleTextTransaction(
-    bot,
-    chatId,
-    user,
-    text
-  );
-
-  if (isTransaction) {
-    return true;
-  }
-
-  // ================================
-  // 🔥 AI FALLBACK
-  // ================================
-  await handleAI(bot, chatId, user, text);
-
-  return true;
+  return false;
 }
 
 module.exports = {
