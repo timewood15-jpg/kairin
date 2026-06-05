@@ -5,9 +5,9 @@ async function handleFinanceInsight(bot, chatId, user, input) {
 
   // Phase 2: deterministic breakdowns
   const breakdown =
+    /\b(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+apa\s+(itu|aja)\b/.test(t) ||
+    /\bkategori\s+(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+apa\s+saja\b/.test(t) ||
     /\bkategori\s+(\w+)\s+bulan\s+ini\s+apa\s+saja\b/.test(t) ||
-    /\bkategori\s+(\w+)\s+apa\s+saja\b/.test(t) ||
-    /\b(makanan|makan|transport|transportasi|belanja|kendaraan|kesehatan|rumah|hiburan|pulsa|hutang)\s+bulan\s+ini\s+apa\s+aja\b/.test(t) ||
     /\btop\s+3\s+pengeluaran\s+bulan\s+ini\b/.test(t) ||
     /\btransaksi\s+terbesar\s+bulan\s+ini\b/.test(t) ||
     /\bpengeluaran\s+terbesar\s+apa\b/.test(t);
@@ -146,21 +146,33 @@ async function handleBreakdown(bot, chatId, user, input) {
     null;
 
   if (canonicalCategory) {
-    const matched = transactions.filter(trx => (trx.category || '') === canonicalCategory);
+    const matched = [...transactions].filter(trx => (trx.category || '') === canonicalCategory);
 
     if (!matched.length) {
       await bot.sendMessage(chatId, '📭 Belum ada transaksi kategori ' + canonicalCategory + ' bulan ini.');
       return true;
     }
 
-    let total = 0;
-    const lines = ['📋 Kategori ' + canonicalCategory + ':'];
-    matched.forEach(trx => {
-      total += trx.amount;
-      const date = new Date(trx.date || trx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-      lines.push('- ' + (trx.description || trx.note || '-') + ' | Rp ' + trx.amount.toLocaleString('id-ID') + ' | ' + date);
+    const sorted = [...matched].sort((a, b) => b.amount - a.amount);
+    const shown = sorted.slice(0, 10);
+    const overflow = Math.max(0, sorted.length - 10);
+
+    const monthLabel = new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+    const lines = ['📋 Kategori ' + canonicalCategory + ' (' + monthLabel + ')'];
+    shown.forEach((trx, idx) => {
+      lines.push(
+        (idx + 1) +
+          '. ' +
+          (trx.description || trx.note || '-') +
+          ' — Rp ' +
+          trx.amount.toLocaleString('id-ID')
+      );
     });
-    lines.push('Jumlah: Rp ' + total.toLocaleString('id-ID'));
+    if (overflow > 0) {
+      lines.push('+' + overflow + ' transaksi lain');
+    }
+    const total = matched.reduce((sum, trx) => sum + trx.amount, 0);
+    lines.push('💰 Total: Rp ' + total.toLocaleString('id-ID'));
     await bot.sendMessage(chatId, lines.join('\n'));
     return true;
   }
