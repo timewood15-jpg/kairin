@@ -1,6 +1,42 @@
 const db = require('../services/database');
 
+const financeContext = new Map();
+
+function cleanFinanceContext() {
+  const now = Date.now();
+  for (const [k, v] of financeContext) {
+    if (v.expiresAt <= now) financeContext.delete(k);
+  }
+}
+
+function getFinanceContext(userId) {
+  cleanFinanceContext();
+  return financeContext.get(userId) || null;
+}
+
+function setFinanceContext(userId, category) {
+  financeContext.set(userId, {
+    category,
+    expiresAt: Date.now() + 10 * 60 * 1000
+  });
+}
+
+function detectFinanceFollowUp(t) {
+  if (/\b(apa\s+itu|apa\s+aja|rincian|detail)\b/.test(t)) return 'apa itu';
+  if (/\b(yang\s+terbesar\s+apa|yang\s+paling\s+besar|yang\s+paling\s+mahal)\b/.test(t)) return 'yang terbesar apa';
+  return null;
+}
+
 async function handleFinanceInsight(bot, chatId, user, input) {
+  const t0 = input.toLowerCase().trim();
+  cleanFinanceContext();
+
+  const followUp = detectFinanceFollowUp(t0);
+  const ctx = followUp ? getFinanceContext(user.id) : null;
+  if (followUp && ctx) {
+    input = `${ctx.category} ${followUp}`;
+  }
+
   const t = input;
 
   // Phase 2: deterministic breakdowns
@@ -71,10 +107,12 @@ async function handleFinanceInsight(bot, chatId, user, input) {
   if (topCategory && !specificCategory) {
     reply +=
       '\n💰 Paling boros: *' + topCategory + '* — Rp ' + topCategoryAmount.toLocaleString('id-ID');
+    setFinanceContext(user.id, topCategory);
   }
 
   if (specificCategory) {
     reply += '\n🏷️ *' + specificCategory + '* bulan ini: Rp ' + specificAmount.toLocaleString('id-ID');
+    setFinanceContext(user.id, specificCategory);
   }
 
   await bot.sendMessage(chatId, reply);
@@ -130,6 +168,34 @@ async function handleBreakdown(bot, chatId, user, input) {
       );
     });
     await bot.sendMessage(chatId, lines.join('\n'));
+    return true;
+  }
+
+  if (/yang\s+terbesar\s+apa/.test(t)) {
+    if (!canonicalCategory) {
+      return false;
+    }
+
+    const expense = [...transactions]
+      .filter(trx => (trx.category || '') === canonicalCategory && trx.type === 'pengeluaran')
+      .sort((a, b) => b.amount - a.amount);
+
+    if (!expense.length) {
+      await bot.sendMessage(chatId, `📭 Belum ada transaksi terbesar di kategori ${canonicalCategory}.`);
+      return true;
+    }
+
+    const top = expense[0];
+    const date = new Date(top.date || top.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    await bot.sendMessage(
+      chatId,
+      [
+        `🏷️ ${canonicalCategory} — transaksi terbesar`,
+        `${top.description || top.note || '-'}`,
+        `Rp ${top.amount.toLocaleString('id-ID')}`,
+        `${canonicalCategory} • ${date}`
+      ].join('\n')
+    );
     return true;
   }
 
