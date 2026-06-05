@@ -154,7 +154,7 @@ async function handleBreakdown(bot, chatId, user, input) {
   const targetAlias = catMatch ? catMatch[1].toLowerCase() : null;
 
   const aliasMatch = Object.keys(categoryAlias).find(
-    alias => new RegExp('\\b' + alias + '\\b').test(t)
+    alias => new RegExp('\\b' + alias + '\\b', 'i').test(t)
   );
 
   const canonicalCategory =
@@ -187,7 +187,7 @@ async function handleBreakdown(bot, chatId, user, input) {
       );
     });
     await bot.sendMessage(chatId, lines.join('\n'));
-    setFinanceContext(user.id, canonicalCategory);
+    if (canonicalCategory) setFinanceContext(user.id, canonicalCategory);
     return true;
   }
 
