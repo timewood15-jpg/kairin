@@ -42,6 +42,12 @@ async function routeMessage(bot, chatId, user, text) {
    return true;
  }
 
+  const handledInsight = await handleFinanceInsight(bot, chatId, user, input);
+
+  if (handledInsight) {
+    return true;
+  }
+
   // ================================
   // 🔥 TRANSACTION FLOW
   // ================================
@@ -53,12 +59,6 @@ async function routeMessage(bot, chatId, user, text) {
   );
 
   if (isTransaction) {
-    return true;
-  }
-
-  const handledInsight = await handleFinanceInsight(bot, chatId, user, input);
-
-  if (handledInsight) {
     return true;
   }
 
