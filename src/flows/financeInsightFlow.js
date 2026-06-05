@@ -37,7 +37,7 @@ async function handleFinanceInsight(bot, chatId, user, input) {
     input = `${ctx.category} ${followUp}`;
   }
 
-  const t = input;
+  const t = input.toLowerCase().trim();
 
   const breakdown =
     /\b(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+apa\s+(itu|aja|saja)\b/.test(t) ||
@@ -148,13 +148,13 @@ async function handleBreakdown(bot, chatId, user, input) {
     return true;
   }
 
-  const t = input;
+  const t = input.toLowerCase().trim();
 
   const catMatch = t.match(/\bkategori\s+(\w+)/);
   const targetAlias = catMatch ? catMatch[1].toLowerCase() : null;
 
   const aliasMatch = Object.keys(categoryAlias).find(
-    alias => new RegExp('\\b' + alias + '\\b', 'i').test(t)
+    (alias) => new RegExp(`\\b${alias}\\b`, 'i').test(t)
   );
 
   const canonicalCategory =
