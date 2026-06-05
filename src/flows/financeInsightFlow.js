@@ -27,6 +27,23 @@ function detectFinanceFollowUp(t) {
   return null;
 }
 
+function getCategoryDeltas(transactions) {
+  const totals = {};
+  for (const trx of transactions) {
+    if (trx.type !== 'pengeluaran') continue;
+    const cat = trx.category || 'Lain-lain';
+    totals[cat] = (totals[cat] || 0) + trx.amount;
+  }
+  return totals;
+}
+
+function getTopExpenseTransaction(transactions) {
+  const expenses = transactions
+    .filter((trx) => trx.type === 'pengeluaran')
+    .sort((a, b) => b.amount - a.amount);
+  return expenses[0] || null;
+}
+
 async function handleFinanceInsight(bot, chatId, user, input) {
   const t0 = input.toLowerCase().trim();
   cleanFinanceContext();
@@ -79,15 +96,21 @@ async function handleFinanceInsight(bot, chatId, user, input) {
 
   if (!isMonthlyInsight && !breakdown) return false;
 
-
   const transactions = await db.getMonthlyTransactions(user.id);
 
-  if (!transactions.length) {
+  const now = new Date();
+  const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevTransactions = await db.getMonthlyTransactions(
+    user.id,
+    prevMonthDate.getMonth() + 1,
+    prevMonthDate.getFullYear()
+  );
+
+  if (!transactions.length && !prevTransactions.length) {
     await bot.sendMessage(chatId, '📭 Belum ada transaksi bulan ini.');
     return true;
   }
 
-  const now = new Date();
   const monthLabel = now.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
 
   let income = 0;
@@ -131,6 +154,59 @@ async function handleFinanceInsight(bot, chatId, user, input) {
     resolvedCategory &&
     (/\bbulan\s+ini\b/.test(t) || /\bhabis\b/.test(t)) &&
     /\bberapa\b/.test(t);
+
+  const isAnomaly =
+    (!isMonthlyInsight &&
+      (/\bkok\s+saya\s+boros\b/.test(t) ||
+        /\bkenapa\s+saya\s+boros\b/.test(t) ||
+        /\bsaya\s+boros\s+apa\b/.test(t)) &&
+      !resolvedCategory);
+
+  if (isAnomaly) {
+    if (!transactions.length && !prevTransactions.length) {
+      await bot.sendMessage(chatId, '📭 Belum ada transaksi bulan ini.');
+      return true;
+    }
+
+    const currentTotals = getCategoryDeltas(transactions);
+    const prevTotals = getCategoryDeltas(prevTransactions);
+    const deltas = {};
+    for (const [cat, cur] of Object.entries(currentTotals)) {
+      const prev = prevTotals[cat] || 0;
+      if (!prev && cur > 0) {
+        deltas[cat] = { delta: cur, percent: 100 };
+      } else if (prev && cur > prev) {
+        deltas[cat] = { delta: cur - prev, percent: Math.round(((cur - prev) / prev) * 100) };
+      }
+    }
+    const sorted = Object.entries(deltas)
+      .sort((a, b) => b[1].delta - a[1].delta)
+      .slice(0, 3);
+    const topTrx = getTopExpenseTransaction(transactions);
+    const lines = ['📈 Pengeluaran bulan ini naik lebih besar dibanding bulan lalu.'];
+    if (sorted.length === 0) {
+      lines.push('Tidak ada kenaikan signifikan.');
+    } else {
+      const first = sorted[0];
+      lines[0] = `📈 Pengeluaran bulan ini naik ${first[1].percent}% dibanding bulan lalu.`;
+      lines.push('');
+      lines.push('Penyebab terbesar:');
+      sorted.forEach(([cat, { delta }], idx) => {
+        lines.push((idx + 1) + '. ' + cat + ' +Rp ' + delta.toLocaleString('id-ID'));
+      });
+    }
+    if (topTrx) {
+      lines.push('');
+      lines.push('🔝 Transaksi terbesar:');
+      lines.push(
+        (topTrx.description || topTrx.note || '-') +
+          ' — Rp ' +
+          topTrx.amount.toLocaleString('id-ID')
+      );
+    }
+    await bot.sendMessage(chatId, lines.join('\n'));
+    return true;
+  }
 
   if (isCategoryTotal && resolvedCategory) {
     const catTotal = categoryTotals[resolvedCategory] || 0;
