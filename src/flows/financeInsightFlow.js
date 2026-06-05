@@ -51,7 +51,12 @@ async function handleFinanceInsight(bot, chatId, user, input) {
   const followUp = detectFinanceFollowUp(t0);
   const ctx = followUp ? getFinanceContext(user.id) : null;
   if (followUp && ctx) {
-    input = `${ctx.category} ${followUp}`;
+    const explicitCategory = Object.values(categoryAlias).find((cat) =>
+      new RegExp('\\b' + cat.toLowerCase() + '\\b').test(t0)
+    );
+    if (!explicitCategory || explicitCategory === ctx.category) {
+      input = `${ctx.category} ${followUp}`;
+    }
   }
 
   const t = input.toLowerCase().trim();
