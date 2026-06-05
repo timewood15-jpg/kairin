@@ -39,6 +39,19 @@ async function handleFinanceInsight(bot, chatId, user, input) {
 
   const t = input.toLowerCase().trim();
 
+  const keywordToCategory = { makan: 'Makanan', transport: 'Transportasi' };
+  const matchedKeyword = Object.keys(keywordToCategory).find(
+    (kw) => new RegExp('\\b' + kw + '\\b').test(t)
+  );
+  const specificCategory = matchedKeyword ? keywordToCategory[matchedKeyword] : null;
+  const aliasMatch2 = Object.keys(categoryAlias).find(
+    (alias) => new RegExp('\\b' + alias + '\\b', 'i').test(t)
+  );
+  const resolvedCategory =
+    (specificCategory) ||
+    (aliasMatch2 && categoryAlias[aliasMatch2]) ||
+    null;
+
   const breakdown =
     /\b(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+apa\s+(itu|aja|saja)\b/.test(t) ||
     /\bkategori\s+(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+apa\s+saja\b/.test(t) ||
@@ -60,9 +73,12 @@ async function handleFinanceInsight(bot, chatId, user, input) {
     /\btransport(asi)?\s+bulan\s+ini\b/.test(t) ||
     /\btotal\s+pengeluaran\s+bulan\s+ini\b/.test(t) ||
     /\bpengeluaran\s+bulan\s+ini\b/.test(t) ||
-    /\bpemasukan\s+bulan\s+ini\b/.test(t);
+    /\bpemasukan\s+bulan\s+ini\b/.test(t) ||
+    /\b(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+bulan\s+ini\b/.test(t) ||
+    /\bbulan\s+ini\b.*\b(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\b/.test(t);
 
   if (!isMonthlyInsight && !breakdown) return false;
+
 
   const transactions = await db.getMonthlyTransactions(user.id);
 
@@ -93,17 +109,6 @@ async function handleFinanceInsight(bot, chatId, user, input) {
   const topCategory = top ? top[0] : null;
   const topCategoryAmount = top ? top[1] : 0;
 
-  const keywordToCategory = { makan: 'Makanan', transport: 'Transportasi' };
-  const matchedKeyword = Object.keys(keywordToCategory).find(
-    (kw) => new RegExp('\\b' + kw + '\\b').test(t)
-  );
-  const specificCategory = matchedKeyword ? keywordToCategory[matchedKeyword] : null;
-  const aliasMatch2 = Object.keys(categoryAlias).find(alias => new RegExp('\\b' + alias + '\\b').test(t));
-  const resolvedCategory =
-    (specificCategory) ||
-    (aliasMatch2 && categoryAlias[aliasMatch2]) ||
-    null;
-
   const specificAmount = resolvedCategory ? categoryTotals[resolvedCategory] || 0 : undefined;
 
   let reply =
@@ -120,6 +125,32 @@ async function handleFinanceInsight(bot, chatId, user, input) {
   if (resolvedCategory) {
     reply += '\n🏷️ *' + resolvedCategory + '* bulan ini: Rp ' + specificAmount.toLocaleString('id-ID');
     setFinanceContext(user.id, resolvedCategory);
+  }
+
+  const isCategoryTotal =
+    resolvedCategory &&
+    (/\bbulan\s+ini\b/.test(t) || /\bhabis\b/.test(t)) &&
+    /\bberapa\b/.test(t);
+
+  if (isCategoryTotal && resolvedCategory) {
+    const catTotal = categoryTotals[resolvedCategory] || 0;
+    const catTransactions = transactions.filter(
+      (trx) => trx.type === 'pengeluaran' && (trx.category || 'Lain-lain') === resolvedCategory
+    );
+    const count = catTransactions.length;
+    const avg = count > 0 ? Math.round(catTotal / count) : 0;
+    await bot.sendMessage(
+      chatId,
+      [
+        '🏷️ ' + resolvedCategory + ' — ' + monthLabel,
+        '',
+        '💰 Total: Rp ' + catTotal.toLocaleString('id-ID'),
+        '📦 ' + count + ' transaksi',
+        '📈 Rata-rata: Rp ' + avg.toLocaleString('id-ID') + ' / transaksi'
+      ].join('\n')
+    );
+    setFinanceContext(user.id, resolvedCategory);
+    return true;
   }
 
   await bot.sendMessage(chatId, reply);
