@@ -41,12 +41,13 @@ async function handleFinanceInsight(bot, chatId, user, input) {
 
   // Phase 2: deterministic breakdowns
   const breakdown =
-    /\b(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+apa\s+(itu|aja)\b/.test(t) ||
+    /\b(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+apa\s+(itu|aja|saja)\b/.test(t) ||
     /\bkategori\s+(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+apa\s+saja\b/.test(t) ||
     /\bkategori\s+(\w+)\s+bulan\s+ini\s+apa\s+saja\b/.test(t) ||
     /\btop\s+3\s+pengeluaran\s+bulan\s+ini\b/.test(t) ||
     /\btransaksi\s+terbesar\s+bulan\s+ini\b/.test(t) ||
-    /\bpengeluaran\s+terbesar\s+apa\b/.test(t);
+    /\bpengeluaran\s+terbesar\s+apa\b/.test(t) ||
+    /\bkategori\s+\w+\s+apa\s+saja\b/.test(t);
 
   if (breakdown) {
     return await handleBreakdown(bot, chatId, user, input);
@@ -61,7 +62,7 @@ async function handleFinanceInsight(bot, chatId, user, input) {
     /\bpengeluaran\s+bulan\s+ini\b/.test(t) ||
     /\bpemasukan\s+bulan\s+ini\b/.test(t);
 
-  if (!isMonthlyInsight) return false;
+  if (!isMonthlyInsight && !breakdown) return false;
 
   const transactions = await db.getMonthlyTransactions(user.id);
 
@@ -97,22 +98,28 @@ async function handleFinanceInsight(bot, chatId, user, input) {
     (kw) => new RegExp('\\b' + kw + '\\b').test(t)
   );
   const specificCategory = matchedKeyword ? keywordToCategory[matchedKeyword] : null;
-  const specificAmount = specificCategory ? categoryTotals[specificCategory] || 0 : undefined;
+  const aliasMatch2 = Object.keys(categoryAlias).find(alias => new RegExp('\\b' + alias + '\\b').test(t));
+  const resolvedCategory =
+    (specificCategory) ||
+    (aliasMatch2 && categoryAlias[aliasMatch2]) ||
+    null;
+
+  const specificAmount = resolvedCategory ? categoryTotals[resolvedCategory] || 0 : undefined;
 
   let reply =
     '📊 Ringkasan ' + monthLabel + '\n\n' +
     '🟢 Pemasukan: Rp ' + income.toLocaleString('id-ID') + '\n' +
     '🔴 Pengeluaran: Rp ' + expense.toLocaleString('id-ID');
 
-  if (topCategory && !specificCategory) {
+  if (topCategory && !resolvedCategory) {
     reply +=
       '\n💰 Paling boros: *' + topCategory + '* — Rp ' + topCategoryAmount.toLocaleString('id-ID');
     setFinanceContext(user.id, topCategory);
   }
 
-  if (specificCategory) {
-    reply += '\n🏷️ *' + specificCategory + '* bulan ini: Rp ' + specificAmount.toLocaleString('id-ID');
-    setFinanceContext(user.id, specificCategory);
+  if (resolvedCategory) {
+    reply += '\n🏷️ *' + resolvedCategory + '* bulan ini: Rp ' + specificAmount.toLocaleString('id-ID');
+    setFinanceContext(user.id, resolvedCategory);
   }
 
   await bot.sendMessage(chatId, reply);
