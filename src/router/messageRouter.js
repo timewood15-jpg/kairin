@@ -3,6 +3,7 @@ const sessionRepo = require('../services/db/sessionRepo');
 const { handleEditSession, hasEditSession } = require('../handlers/edit');
 const { handleOCRSession } = require('../flows/ocrSessionFlow');
 const { handleTextTransaction } = require('../flows/transactionFlow');
+const { handleFinanceInsight } = require('../flows/financeInsightFlow');
 const { handleAI } = require('../flows/aiFlow');
 
 const { routeCommand } = require('./commandRouter');
@@ -52,6 +53,12 @@ async function routeMessage(bot, chatId, user, text) {
   );
 
   if (isTransaction) {
+    return true;
+  }
+
+  const handledInsight = await handleFinanceInsight(bot, chatId, user, input);
+
+  if (handledInsight) {
     return true;
   }
 
