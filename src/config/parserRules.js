@@ -33,6 +33,12 @@ module.exports = {
     '+'
   ],
   categoryMap: {
+    hutang: ['bayar hutang', 'dibayar hutang', 'cicilan', 'pinjam'],
+    tabungan: ['tabungan', 'deposito'],
+    transfer: ['transfer ke', 'transfer dari', 'topup', 'isi saldo'],
+    bisnis: ['modal usaha', 'jualan', 'omzet', 'customer'],
+    refund: ['refund', 'retur barang', 'uang kembali'],
+    tunai: ['tunai', 'atm'],
     makanan: ['makan', 'kopi', 'minum', 'resto'],
     transportasi: ['bensin', 'grab', 'gojek', 'tol'],
     belanja: ['beli', 'shop', 'market'],
