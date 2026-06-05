@@ -12,6 +12,8 @@ module.exports = {
     'dibayar customer',
     'dibayar hutang',
     'dibayarin',
+    'nagih hutang',
+    'pinjam uang',
     'retur barang',
     'tarik tabungan',
     'uang kembali',
