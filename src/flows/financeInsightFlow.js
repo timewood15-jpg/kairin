@@ -83,6 +83,12 @@ async function handleFinanceInsight(bot, chatId, user, input) {
     return await handleBreakdown(bot, chatId, user, input);
   }
 
+  const isAnomalyRaw =
+    (/\bkok\s+saya\s+boros\b/.test(t) ||
+      /\bkenapa\s+saya\s+boros\b/.test(t) ||
+      /\bsaya\s+boros\s+apa\b/.test(t)) &&
+    !resolvedCategory;
+
   const isMonthlyInsight =
     /\bpengeluaran\s+terbesar\b/.test(t) ||
     /\bpaling\s+boros\b/.test(t) ||
@@ -94,7 +100,7 @@ async function handleFinanceInsight(bot, chatId, user, input) {
     /\b(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\s+bulan\s+ini\b/.test(t) ||
     /\bbulan\s+ini\b.*\b(belanja|makanan|makan|transport|transportasi|hiburan|kesehatan|rumah|kendaraan|pulsa|hutang|transfer|bisnis|refund)\b/.test(t);
 
-  if (!isMonthlyInsight && !breakdown) return false;
+  if (!isMonthlyInsight && !breakdown && !isAnomalyRaw) return false;
 
   const transactions = await db.getMonthlyTransactions(user.id);
 
