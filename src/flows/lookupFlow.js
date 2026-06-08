@@ -1,4 +1,5 @@
 const db = require('../services/database');
+const { formatDetailMessage } = require('../commands/detail');
 
 const lookupContext = new Map();
 
@@ -94,11 +95,7 @@ async function handleTransactionLookup(bot, chatId, user, input) {
     let reply = '';
     switch (followUp) {
       case 'detailnya':
-        reply =
-          '📌 Detail transaksi\n' +
-          (trx.description || trx.note || '-') + '\n' +
-          'Rp ' + trx.amount.toLocaleString('id-ID') + '\n' +
-          (trx.category || 'Lain-lain') + ' • ' + date;
+        reply = formatDetailMessage(trx);
         break;
       case 'kapan':
         reply = '🗓️ Transaksi terakhir: ' + date;
