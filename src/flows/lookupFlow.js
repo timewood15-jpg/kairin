@@ -98,7 +98,9 @@ function findBestTransaction(transactions, tokens) {
 }
 
 function detectLookupFollowUp(t) {
-  if (/\b(minta\s+)?detailnya\b/.test(t)) return 'detailnya';
+  if (/\b(minta\s+)?(detailnya|detilnya|derailnya)\b/.test(t)) {
+    return 'detailnya';
+  }
   if (/\byang\s+terakhir\b/.test(t)) return 'yang terakhir';
   if (/\bkapan\b/.test(t)) return 'kapan';
   if (/\bberapa\b/.test(t)) return 'berapa';
