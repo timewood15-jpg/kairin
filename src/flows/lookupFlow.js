@@ -110,9 +110,12 @@ async function handleTransactionLookup(bot, chatId, user, input) {
   const t = input.toLowerCase().trim();
   const ctx = getLookupContext(user.id);
 
+  const tokens = tokenize(t);
+  if (!tokens.length) return false;
+
   const followUp = ctx ? detectLookupFollowUp(t) : null;
 
-  if (followUp && ctx) {
+  if (followUp && ctx && tokens.length <= 1) {
     const trx = ctx.trx;
     const date = new Date(trx.date || trx.created_at).toLocaleDateString('id-ID', {
       day: 'numeric', month: 'long', year: 'numeric',
@@ -152,9 +155,6 @@ async function handleTransactionLookup(bot, chatId, user, input) {
 
   const transactions = await db.getRecentTransactions(user.id, 3);
   if (!transactions.length) return false;
-
-  const tokens = tokenize(t);
-  if (!tokens.length) return false;
 
   const best = findBestTransaction(transactions, tokens);
   if (!best) return false;
