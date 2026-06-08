@@ -48,11 +48,37 @@ function tokenize(text) {
 }
 
 function scoreTransaction(trx, tokens) {
-  const desc = (trx.description || trx.note || '').toLowerCase();
   let score = 0;
+
+  const desc = (
+    trx.description ||
+    trx.note ||
+    ''
+  ).toLowerCase();
+
+  const merchant = (
+    trx.merchant ||
+    ''
+  ).toLowerCase();
+
+  const billItemNames = Array.isArray(trx.bill_items)
+    ? trx.bill_items
+        .map((it) =>
+          it && typeof it.name === 'string'
+            ? it.name.toLowerCase()
+            : ''
+        )
+        .filter(Boolean)
+    : [];
+
   for (const token of tokens) {
-    if (desc.includes(token)) score++;
+    if (desc.includes(token)) score += 2;
+    if (merchant.includes(token)) score += 2;
+    if (billItemNames.some((name) => name.includes(token))) {
+      score += 3;
+    }
   }
+
   return score;
 }
 
