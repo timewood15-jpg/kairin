@@ -22,6 +22,10 @@ function setLookupContext(userId, trx) {
   });
 }
 
+function clearLookupContext(userId) {
+  lookupContext.delete(userId);
+}
+
 const STOP_WORDS = new Set([
   'saya', 'aku', 'gua', 'gw', 'lu', 'kamu', 'anda',
   'tau', 'tahu', 'deh', 'dong', 'ya', 'lah', 'kah', 'sih',
@@ -112,10 +116,15 @@ async function handleTransactionLookup(bot, chatId, user, input) {
   const t = input.toLowerCase().trim();
   const ctx = getLookupContext(user.id);
 
+  const followUp = ctx ? detectLookupFollowUp(t) : null;
+  const isNewLookup = /\b(pernah|terakhir|kapan)\b/.test(t);
+
+  if (ctx && !followUp && !isNewLookup) {
+    clearLookupContext(user.id);
+  }
+
   const tokens = tokenize(t);
   if (!tokens.length) return false;
-
-  const followUp = ctx ? detectLookupFollowUp(t) : null;
 
   if (followUp && ctx && tokens.length <= 1) {
     const trx = ctx.trx;
