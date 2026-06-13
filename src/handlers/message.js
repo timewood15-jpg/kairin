@@ -1,21 +1,11 @@
 // src/handlers/message.js
-const { handleOCRSession } = require('../flows/ocrSessionFlow');
-const { handleHelp } = require('../commands/help');
-const { handlePlan } = require('../commands/plan');
-const { handleHari } = require('../commands/hari');
-const { handleDompet } = require('../commands/dompet');
-const { handleSaldo } = require('../commands/saldo');
-const { handleStart } = require('../commands/start');
-const { handleDetail } = require('../commands/detail');
-const { handleEdit, handleHapus, handleEditSession, hasEditSession} = require('./edit');
-const { handleRiwayat } = require('../commands/riwayat');
+const { handleEditSession, hasEditSession } = require('./edit');
 const db = require('../services/database');
-const { handleTextTransaction } = require('../flows/transactionFlow');
-const { handleAI } = require('../flows/aiFlow');
-const { handleOCR } = require('../flows/ocrFlow'); // 
+const { handleOCR } = require('../flows/ocrFlow');
 const sessionRepo = require('../services/db/sessionRepo');
 const { isRateLimited } = require('../utils/rateLimiter');
 const { routeMessage } = require('../router/messageRouter');
+const { routeCommand } = require('../router/commandRouter');
 
 require('dotenv').config();
 
@@ -96,44 +86,9 @@ async function handleUpdate(bot, update) {
 // HANDLE PERINTAH /
 // ============================================================
 async function handleCommand(bot, chatId, user, cmd) {
-  const command = cmd.split(' ')[0]; // ambil perintah tanpa parameter
-
-  switch (command) {
-    case '/start':
-      await handleStart(bot, chatId, user);
-      break;
-    case '/help':
-      await handleHelp(bot, chatId);
-      break;
-    case '/saldo':
-      await handleSaldo(bot, chatId, user);
-      break;
-    case '/hari':
-      await handleHari(bot, chatId, user);
-      break;
-    case '/dompet':
-      await handleDompet(bot, chatId, user);
-      break;
-    case '/plan':
-      await handlePlan(bot, chatId, user);
-      break;
-    case '/edit':
-      await handleEdit(bot, chatId, user);
-      break;
-    case '/hapus':
-      await handleHapus(bot, chatId, user);
-      break;
-    case '/detail':
-      await handleDetail(bot, chatId, user, cmd);
-      break;
-    case '/batal':
-      await bot.sendMessage(chatId, '❌ Tidak ada yang dibatalkan.');
-      break;
-    case '/riwayat':
-      await handleRiwayat(bot, chatId, user);
-      break;  
-    default:
-      await bot.sendMessage(chatId, '❓ Perintah tidak dikenal. Ketik /help untuk bantuan.');
+  const handled = await routeCommand(bot, chatId, user, cmd);
+  if (!handled) {
+    await bot.sendMessage(chatId, '❓ Perintah tidak dikenal. Ketik /help untuk bantuan.');
   }
 }
 

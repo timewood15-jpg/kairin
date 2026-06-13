@@ -4,6 +4,9 @@ const { handleHari } = require('../commands/hari');
 const { handleDompet } = require('../commands/dompet');
 const { handleSaldo } = require('../commands/saldo');
 const { handleStart } = require('../commands/start');
+const { handleEdit, handleHapus } = require('../handlers/edit');
+const { handleDetail } = require('../commands/detail');
+const { handleRiwayat } = require('../commands/riwayat');
 
 const commands = {
   '/start': handleStart,
@@ -11,19 +14,24 @@ const commands = {
   '/plan': handlePlan,
   '/hari': handleHari,
   '/dompet': handleDompet,
-  '/saldo': handleSaldo
+  '/saldo': handleSaldo,
+  '/edit': handleEdit,
+  '/hapus': handleHapus,
+  '/detail': handleDetail,
+  '/riwayat': handleRiwayat
 };
 
 async function routeCommand(bot, chatId, user, input) {
-  const handler = commands[input];
+  const cmd = input.split(' ')[0];
+  const handler = commands[cmd];
 
   if (!handler) {
     return false;
   }
 
-  await handler(bot, chatId, user);
+  await handler(bot, chatId, user, input);
 
-return true;
+  return true;
 }
 
 module.exports = {
