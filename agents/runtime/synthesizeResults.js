@@ -39,6 +39,47 @@ async function synthesizeResults(
   task,
   results
 ) {
+  const failedAgents =
+  Object.entries(results)
+    .filter(
+      ([_, output]) =>
+        output.startsWith(
+          'ERROR:'
+        )
+    );
+
+if (
+  failedAgents.length
+) {
+
+  const failures =
+    failedAgents
+      .map(
+        ([agent, output]) =>
+          `- ${agent}: ${output}`
+      )
+      .join('\n');
+
+  return `
+## Findings
+[VERIFIED] Specialist execution failed.
+
+## Risk
+High
+
+## Recommendation
+REVISE
+
+## Why
+Audit could not complete because one or more specialists crashed.
+
+## Failed Specialists
+${failures}
+
+## Next Smallest Safe Step
+Fix specialist runtime errors before trusting audit output.
+`;
+}
   const specialistReports =
     Object.entries(results)
       .map(([agent, output]) => {
