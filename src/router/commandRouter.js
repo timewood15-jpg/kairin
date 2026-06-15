@@ -7,6 +7,7 @@ const { handleStart } = require('../commands/start');
 const { handleEdit, handleHapus } = require('../handlers/edit');
 const { handleDetail } = require('../commands/detail');
 const { handleRiwayat } = require('../commands/riwayat');
+const { handleNusa } = require('../commands/nusa');
 
 const commands = {
   '/start': handleStart,
@@ -18,7 +19,8 @@ const commands = {
   '/edit': handleEdit,
   '/hapus': handleHapus,
   '/detail': handleDetail,
-  '/riwayat': handleRiwayat
+  '/riwayat': handleRiwayat,
+  '/nusa': handleNusa
 };
 
 async function routeCommand(bot, chatId, user, input) {
