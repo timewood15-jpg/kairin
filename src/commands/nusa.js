@@ -1,6 +1,9 @@
 const { exec } =
   require('child_process');
 
+const path =
+  require('path');
+
 const activeJobs =
   new Set();
 
@@ -41,7 +44,6 @@ async function handleNusa(
     );
   }
 
-  // prevent concurrent jobs
   if (
     activeJobs.has(chatId)
   ) {
@@ -51,24 +53,33 @@ async function handleNusa(
     );
   }
 
-  activeJobs.add(
-    chatId
-  );
+  activeJobs.add(chatId);
 
   await bot.sendMessage(
     chatId,
     '⚕ Nusa sedang berpikir...'
   );
 
-  // escape quotes
   const safeTask =
     task.replace(
       /"/g,
       '\\"'
     );
 
+  // FIX PATH FOR RAILWAY
+  const hermesPath =
+    path.resolve(
+      __dirname,
+      '../../hermes.js'
+    );
+
+  console.log(
+    'NUSA RUN:',
+    hermesPath
+  );
+
   exec(
-    `node hermes.js audit "${safeTask}"`,
+    `node "${hermesPath}" audit "${safeTask}"`,
     {
       cwd:
         process.cwd(),
@@ -87,6 +98,15 @@ async function handleNusa(
     ) => {
 
       try {
+
+        if (
+          stderr?.trim()
+        ) {
+          console.log(
+            'NUSA STDERR:',
+            stderr
+          );
+        }
 
         if (err) {
 
