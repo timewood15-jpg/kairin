@@ -78,8 +78,28 @@ async function handleNusa(
     hermesPath
   );
 
-  exec(
-    `node "${hermesPath}" audit "${safeTask}"`,
+  const isAudit =
+  /^audit\s+/i.test(
+    task
+  );
+
+const cleanedTask =
+  task.replace(
+    /^audit\s+/i,
+    ''
+  );
+
+const command =
+  isAudit
+    ? `node "${hermesPath}" audit "${cleanedTask}"`
+    : `node "${hermesPath}" "${safeTask}"`;
+
+console.log(
+  'NUSA CMD:',
+  command
+);
+
+  exec(command,
     {
       cwd:
         process.cwd(),
