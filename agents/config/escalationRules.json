@@ -1,0 +1,19 @@
+{
+  "maze": {
+    "heavyKeywords": [
+      "critical",
+      "production",
+      "race condition",
+      "root cause",
+      "hidden bug",
+      "regression",
+      "security",
+      "memory leak",
+      "stale context",
+      "concurrency",
+      "edge case"
+    ],
+    "fallbackModel": "google/gemini-2.5-flash",
+    "escalatedModel": "anthropic/claude-sonnet-4"
+  }
+}

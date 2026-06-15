@@ -1,0 +1,51 @@
+{
+  "lookup": [
+    "src/flows/lookupFlow.js",
+    "src/router/messageRouter.js"
+  ],
+
+  "google": [
+    "src/services/googleSheet.js",
+    "src/flows/transactionFlow.js",
+    "src/handlers/edit.js",
+    "src/services/database.js"
+  ],
+
+  "finance": [
+    "src/flows/financeInsightFlow.js",
+    "src/services/database.js",
+    "src/router/messageRouter.js"
+  ],
+
+  "transaction": [
+    "src/flows/transactionFlow.js",
+    "src/services/database.js",
+    "src/utils/parser.js",
+    "src/config/parserRules.js"
+  ],
+
+  "ocr": [
+    "src/flows/ocrFlow.js",
+    "src/services/ocr.js",
+    "src/utils/receiptParser.js"
+  ],
+
+  "security": [
+    "src/services/database.js",
+    ".env.example"
+  ],
+
+  "router": [
+    "src/router/messageRouter.js"
+  ],
+
+  "telegram": [
+    "src/bot.js",
+    "src/router/messageRouter.js"
+  ],
+
+  "ai": [
+    "src/flows/aiFlow.js",
+    "src/services/claude.js"
+  ]
+}

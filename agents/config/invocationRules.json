@@ -1,0 +1,76 @@
+{
+  "security": {
+    "keywords": [
+      "oauth",
+      "credential",
+      "apikey",
+      "api key",
+      "jwt",
+      "secret",
+      "leak",
+      "exploit",
+      "vulnerability",
+      "supabase"
+    ],
+    "agents": ["aegis"]
+  },
+
+  "finance": {
+    "keywords": [
+      "ocr",
+      "finance",
+      "amount",
+      "kategori",
+      "pengeluaran",
+      "pemasukan",
+      "refund",
+      "saldo",
+      "sheet",
+      "receipt",
+      "nota",
+      "struk",
+      "nominal",
+      "parser"
+    ],
+    "agents": ["nami", "maze"]
+  },
+
+  "bug": {
+    "keywords": [
+      "bug",
+      "regression",
+      "error",
+      "root cause",
+      "stale",
+      "broken",
+      "fix",
+      "audit"
+    ],
+    "agents": ["maze", "sega"]
+  },
+
+  "refactor": {
+    "keywords": [
+      "refactor",
+      "cleanup",
+      "modular",
+      "rewrite",
+      "minimal diff"
+    ],
+    "agents": ["sega", "maze"]
+  },
+
+  "architecture": {
+    "keywords": [
+      "architecture",
+      "router",
+      "routing",
+      "flow",
+      "performance",
+      "memory",
+      "optimization",
+      "scaling"
+    ],
+    "agents": ["sega", "maze"]
+  }
+}
