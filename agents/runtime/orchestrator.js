@@ -199,3 +199,9 @@ Rules:
     finalReport
   };
 }
+
+module.exports = {
+  orchestrate,
+  enrichTask,
+  extractRequestedFiles
+};
