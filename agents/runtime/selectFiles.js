@@ -15,86 +15,96 @@ function selectFiles(
     new Set();
 
   const keywordMap = {
-      google: [
-        'google',
-        'sheet',
-        'sheets',
-        'sync',
-        'spreadsheet'
-      ],
+  hermes: [
+    'hermes',
+    'nusa',
+    'telegram',
+    'apply',
+    'push',
+    'cli',
+    'workflow',
+    'command'
+  ],
 
-      lookup: [
-      'lookup',
-      'lookupflow',
-      'detailnya',
-      'transaksi terakhir',
-      'riwayat',
-      'stale',
-      'stale context'
-    ],
+  google: [
+    'google',
+    'sheet',
+    'sheets',
+    'sync',
+    'spreadsheet'
+  ],
 
-    finance: [
-      'finance',
-      'pengeluaran',
-      'pemasukan',
-      'boros',
-      'bulan ini',
-      'saldo',
-      'budget'
-    ],
+  lookup: [
+    'lookup',
+    'lookupflow',
+    'detailnya',
+    'transaksi terakhir',
+    'riwayat',
+    'stale',
+    'stale context'
+  ],
 
-    transaction: [
-      'transaksi',
-      'save',
-      'parser',
-      'amount',
-      'expense',
-      'income'
-    ],
+  finance: [
+    'finance',
+    'pengeluaran',
+    'pemasukan',
+    'boros',
+    'bulan ini',
+    'saldo',
+    'budget'
+  ],
 
-    ocr: [
-      'ocr',
-      'receipt',
-      'struk',
-      'bill',
-      'scan',
-      'photo'
-    ],
+  transaction: [
+    'transaksi',
+    'save',
+    'parser',
+    'amount',
+    'expense',
+    'income'
+  ],
 
-    security: [
-      'token',
-      'auth',
-      'oauth',
-      'credential',
-      'apikey',
-      'jwt',
-      'supabase',
-      'leak',
-      'security',
-      'vulnerability'
-    ],
+  ocr: [
+    'ocr',
+    'receipt',
+    'struk',
+    'bill',
+    'scan',
+    'photo'
+  ],
 
-    router: [
-      'router',
-      'message',
-      'command',
-      'flow',
-      'session'
-    ],
+  security: [
+    'token',
+    'auth',
+    'oauth',
+    'credential',
+    'apikey',
+    'jwt',
+    'supabase',
+    'leak',
+    'security',
+    'vulnerability'
+  ],
 
-    telegram: [
-      'telegram',
-      'bot'
-    ],
+  router: [
+    'router',
+    'message',
+    'flow',
+    'session'
+  ],
 
-    ai: [
-      'ai',
-      'claude',
-      'gemini',
-      'prompt',
-      'llm'
-    ]
-  };
+  telegram: [
+    'telegram',
+    'bot'
+  ],
+
+  ai: [
+    'ai',
+    'claude',
+    'gemini',
+    'prompt',
+    'llm'
+  ]
+};
 
   // detect domains
   const matchedDomains = [];
@@ -197,6 +207,36 @@ function selectFiles(
       selected.add(f)
     );
   }
+
+  // Hermes / Nusa self-audit
+if (
+  [
+    'nusa',
+    'hermes',
+    'telegram',
+    'apply',
+    'push',
+    'cli',
+    'workflow',
+    'command'
+  ].some((kw) =>
+    t.includes(kw)
+  )
+) {
+  [
+    'hermes.js',
+    'package.json',
+    'src/commands/nusa.js',
+    'src/router/commandRouter.js',
+    'src/router/messageRouter.js',
+    'agents/runtime/orchestrator.js',
+    'agents/runtime/invokeAgent.js',
+    'agents/runtime/synthesizeResults.js',
+    'agents/runtime/selectFiles.js'
+  ].forEach((f) =>
+    selected.add(f)
+  );
+}
 
   // One-hop dependency expansion
   // Scans selected files for local require() calls

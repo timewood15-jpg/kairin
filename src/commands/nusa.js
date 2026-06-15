@@ -7,6 +7,9 @@ const path =
 const activeJobs =
   new Set();
 
+const pendingTasks =
+  new Map();
+
 const ALLOWED_USERS =
 [
   1021505730
@@ -40,9 +43,95 @@ async function handleNusa(
   if (!task) {
     return bot.sendMessage(
       chatId,
-      'Usage:\n/nusa <task>'
+      [
+        'Usage:',
+        '/nusa audit <task>',
+        '/nusa apply',
+        '/nusa cancel'
+      ].join('\n')
     );
   }
+
+  // =====================
+  // APPLY MODE
+  // =====================
+  if (
+    /^apply$/i.test(task)
+  ) {
+
+    const pending =
+      pendingTasks.get(
+        chatId
+      );
+
+    if (!pending) {
+      return bot.sendMessage(
+        chatId,
+        '⚠️ Tidak ada pending task.'
+      );
+    }
+
+    return runHermes(
+      bot,
+      chatId,
+      `apply "${pending}"`,
+      pending
+    );
+  }
+
+  // =====================
+  // CANCEL MODE
+  // =====================
+  if (
+    /^cancel$/i.test(task)
+  ) {
+
+    pendingTasks.delete(
+      chatId
+    );
+
+    return bot.sendMessage(
+      chatId,
+      '🗑 Pending task dibatalkan.'
+    );
+  }
+
+  // =====================
+  // AUDIT MODE
+  // =====================
+  const isAudit =
+    /^audit\s+/i.test(
+      task
+    );
+
+  const cleanedTask =
+    task.replace(
+      /^audit\s+/i,
+      ''
+    ).trim();
+
+  // save pending task
+  pendingTasks.set(
+    chatId,
+    cleanedTask
+  );
+
+  return runHermes(
+    bot,
+    chatId,
+    isAudit
+      ? `audit "${cleanedTask}"`
+      : `"${cleanedTask}"`,
+    cleanedTask
+  );
+}
+
+async function runHermes(
+  bot,
+  chatId,
+  commandArg,
+  taskLabel
+) {
 
   if (
     activeJobs.has(chatId)
@@ -60,46 +149,22 @@ async function handleNusa(
     '⚕ Nusa sedang berpikir...'
   );
 
-  const safeTask =
-    task.replace(
-      /"/g,
-      '\\"'
-    );
-
-  // FIX PATH FOR RAILWAY
   const hermesPath =
     path.resolve(
       __dirname,
       '../../hermes.js'
     );
 
+  const command =
+    `node "${hermesPath}" ${commandArg}`;
+
   console.log(
-    'NUSA RUN:',
-    hermesPath
+    'NUSA CMD:',
+    command
   );
 
-  const isAudit =
-  /^audit\s+/i.test(
-    task
-  );
-
-const cleanedTask =
-  task.replace(
-    /^audit\s+/i,
-    ''
-  );
-
-const command =
-  isAudit
-    ? `node "${hermesPath}" audit "${cleanedTask}"`
-    : `node "${hermesPath}" "${safeTask}"`;
-
-console.log(
-  'NUSA CMD:',
-  command
-);
-
-  exec(command,
+  exec(
+    command,
     {
       cwd:
         process.cwd(),
@@ -146,7 +211,8 @@ console.log(
             .replace(
               /\[dotenv.*\n/g,
               ''
-            );
+            )
+            .trim();
 
         const reportIndex =
           cleaned.indexOf(
@@ -161,9 +227,6 @@ console.log(
               reportIndex
             );
         }
-
-        cleaned =
-          cleaned.trim();
 
         if (!cleaned) {
           return bot.sendMessage(
@@ -186,6 +249,25 @@ console.log(
               i,
               i + chunkSize
             )
+          );
+        }
+
+        // hint apply
+        if (
+          commandArg.startsWith(
+            'audit'
+          )
+        ) {
+          await bot.sendMessage(
+            chatId,
+            [
+              '📌 Pending task disimpan.',
+              'Jika ingin lanjut:',
+              '/nusa apply',
+              '',
+              'Untuk batal:',
+              '/nusa cancel'
+            ].join('\n')
           );
         }
 
