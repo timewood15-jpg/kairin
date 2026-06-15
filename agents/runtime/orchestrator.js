@@ -355,6 +355,45 @@ function extractRequestedFiles(
   ];
 }
 
+function shouldRetryWithMoreFiles(
+  response = ''
+) {
+
+  const text =
+    response.toLowerCase();
+
+  return [
+    'need file',
+    'need files',
+    'missing file',
+    'missing files',
+
+    'requires inspecting',
+    'requires inspection',
+
+    'requires access',
+    'need access',
+    'requesting files',
+
+    'requires additional files',
+    'need additional files',
+
+    'unable to verify',
+    'cannot verify',
+
+    'pending further inspection',
+
+    'specific files',
+    'inspect additional',
+    'provide files',
+    'requires more context'
+  ].some((keyword) =>
+    text.includes(
+      keyword
+    )
+  );
+}
+
 module.exports = {
   orchestrate,
   enrichTask,
