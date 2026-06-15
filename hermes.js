@@ -13,61 +13,92 @@ const {
 );
 
 async function main() {
+
   const args =
     process.argv.slice(2);
 
   if (!args.length) {
+
     console.log(`
 Usage:
 
 node hermes.js quick "<task>"
+node hermes.js quick-fix "<task>"
 node hermes.js audit "<task>"
+node hermes.js apply "<task>"
 
 Examples:
 node hermes.js quick "Fix lookupFlow stale context bug"
 node hermes.js audit "Audit Supabase token leak"
+node hermes.js apply "Refactor duplicated Google Sheet sync"
 `);
+
     return;
   }
 
-  let mode = 'audit';
-  let task = '';
+  let mode =
+    'quick';
+
+  let task =
+    '';
 
   const firstArg =
-    args[0].toLowerCase();
+    args[0]
+      .toLowerCase();
 
   // explicit mode
   if (
-    ['quick', 'quick-fix', 'audit']
-      .includes(firstArg)
+    [
+      'quick',
+      'quick-fix',
+      'audit',
+      'apply'
+    ].includes(
+      firstArg
+    )
   ) {
-    mode = firstArg;
+
+    mode =
+      firstArg;
+
     task =
-      args.slice(1)
+      args
+        .slice(1)
         .join(' ')
         .trim();
+
   } else {
-    // fallback default
+
+    // fallback
     task =
-      args.join(' ')
+      args
+        .join(' ')
         .trim();
   }
 
   if (!task) {
+
     console.log(
       'Task required.'
     );
+
     return;
   }
 
   try {
+
     console.log(
       `\n⚕ Hermes (${mode.toUpperCase()})\n`
     );
 
     let output;
 
-    if (mode === 'audit') {
+    // AUDIT MODE
+    if (
+      mode ===
+      'audit'
+    ) {
+
       output =
         await orchestrate(
           task
@@ -88,8 +119,43 @@ node hermes.js audit "Audit Supabase token leak"
       console.log(
         output.finalReport
       );
+    }
 
-    } else {
+    // APPLY MODE (DRY RUN)
+    else if (
+      mode ===
+      'apply'
+    ) {
+
+      output =
+        await orchestrate(
+          task,
+          {
+            patchMode:
+              true
+          }
+        );
+
+      console.log(
+        '\n========================'
+      );
+
+      console.log(
+        '⚕ APPLY REPORT'
+      );
+
+      console.log(
+        '========================\n'
+      );
+
+      console.log(
+        output.finalReport
+      );
+    }
+
+    // QUICK / QUICK-FIX
+    else {
+
       const result =
         await quickSolve(
           task,
@@ -100,15 +166,20 @@ node hermes.js audit "Audit Supabase token leak"
           }
         );
 
-      console.log(result);
+      console.log(
+        result
+      );
     }
 
   } catch (err) {
+
     console.error(
       '\n❌ HERMES ERROR:\n'
     );
 
-    console.error(err);
+    console.error(
+      err
+    );
   }
 }
 
