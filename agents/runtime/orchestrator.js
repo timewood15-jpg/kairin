@@ -200,6 +200,161 @@ Rules:
   };
 }
 
+function enrichTask(
+  task,
+  relevantFiles = []
+) {
+
+  const lower =
+    task.toLowerCase();
+
+  const fileHint =
+    relevantFiles.length
+      ? `
+Repository files included:
+
+${relevantFiles.join('\n')}
+
+Critical Rules:
+- Analyze ONLY provided repository files.
+- Never assume missing code exists.
+- Never invent implementation details.
+- If evidence incomplete:
+  mark as "unverified suspicion".
+- If repo state unclear:
+  prefer NO CHANGE.
+`
+      : `
+Repository context may be incomplete.
+
+Critical Rules:
+- Never assume code exists.
+- If evidence incomplete:
+  mark as "unverified suspicion".
+`;
+
+  // historical lookup bug
+  if (
+    lower.includes(
+      'lookupflow'
+    ) &&
+    lower.includes(
+      'stale'
+    )
+  ) {
+
+    return `
+${fileHint}
+
+Historical bug context:
+
+Observed bug:
+1. User:
+"Saya pernah makan nasi padang?"
+
+2. User:
+"Jadi banyak pengeluaran daripada pemasukan?"
+
+3. User:
+"Detailnya"
+
+Wrong behavior:
+Old lookupContext hijacked
+previous transaction.
+
+Historical patch:
+clearLookupContext(user.id)
+on non-follow-up message.
+
+Critical Rule:
+VERIFY CURRENT IMPLEMENTATION.
+Never assume bug still exists.
+
+Task:
+${task}
+`;
+  }
+
+  return `
+${fileHint}
+
+Task:
+${task}
+`;
+}
+
+function extractRequestedFiles(
+  response = ''
+) {
+
+  const text =
+    response.toLowerCase();
+
+  const inferred =
+    [];
+
+  const fileHints =
+    {
+      '.env': [
+        '.env',
+        '.env.example'
+      ],
+
+      auth: [
+        'src/auth',
+        'src/services/auth.js',
+        'src/middleware'
+      ],
+
+      supabase: [
+        'src/services/database.js',
+        'src/services/supabase.js'
+      ],
+
+      route: [
+        'src/routes',
+        'src/router'
+      ],
+
+      config: [
+        'next.config.js',
+        'src/config'
+      ],
+
+      client: [
+        'src/client',
+        'src/frontend'
+      ]
+    };
+
+  for (
+    const [
+      keyword,
+      files
+    ] of Object.entries(
+      fileHints
+    )
+  ) {
+
+    if (
+      text.includes(
+        keyword
+      )
+    ) {
+
+      inferred.push(
+        ...files
+      );
+    }
+  }
+
+  return [
+    ...new Set(
+      inferred
+    )
+  ];
+}
+
 module.exports = {
   orchestrate,
   enrichTask,
