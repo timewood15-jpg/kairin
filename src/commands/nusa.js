@@ -101,13 +101,29 @@ async function handleNusa(
           );
         }
 
-        const cleaned =
+        let cleaned =
           stdout
             .replace(
               /\[dotenv.*\n/g,
               ''
-            )
-            .trim();
+            );
+
+        const reportIndex =
+          cleaned.indexOf(
+            '## Findings'
+          );
+
+        if (
+          reportIndex !== -1
+        ) {
+          cleaned =
+            cleaned.slice(
+              reportIndex
+            );
+        }
+
+        cleaned =
+          cleaned.trim();
 
         if (!cleaned) {
           return bot.sendMessage(
