@@ -176,16 +176,13 @@ function selectModel(
 
   const taskMatch =
   String(task || '')
-    .match(
-      /task:\s*([\s\S]*?)(?:\n\s*rules:|$)/i
+    .match(/task:\s*([\s\S]*)/i
     );
 
 const rawTask =
-  (
-    taskMatch?.[1] ||
-    String(task || '')
-  )
+ (taskMatch?.[1] || task)
     .trim()
+    .split('\n')[0]
     .toLowerCase();
 
 const matchedKeyword =
