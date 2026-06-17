@@ -174,10 +174,17 @@ function selectModel(
     return defaultModel;
   }
 
-  const rawTask =
+  const taskMatch =
   String(task || '')
-    .split('task:')
-    .pop()
+    .match(
+      /task:\s*([\s\S]*)$/i
+    );
+
+const rawTask =
+  (
+    taskMatch?.[1] ||
+    String(task || '')
+  )
     .trim()
     .toLowerCase();
 
