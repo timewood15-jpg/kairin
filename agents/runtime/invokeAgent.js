@@ -174,19 +174,19 @@ function selectModel(
     return defaultModel;
   }
 
-  const taskMatch =
-  String(task || '')
-    .match(/task:\s*([\s\S]*)/i
-    );
+  const taskText =
+  String(task || '');
 
 const rawTask =
- taskMatch?.[1]
-    ?.trim()
-    ?.split('\n')[0]
-    ?.toLowerCase()
-  || String(task || '')
-      .trim()
-      .toLowerCase();
+  taskText.includes('Task:')
+    ? taskText
+        .split('Task:')[1]
+        .split('Rules:')[0]
+        .trim()
+        .toLowerCase()
+    : taskText
+        .trim()
+        .toLowerCase();
 
 const matchedKeyword =
   rule.heavyKeywords.find(
