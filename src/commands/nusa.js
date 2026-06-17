@@ -73,13 +73,17 @@ async function handleNusa(
 
       await bot.sendMessage(
     chatId,
-    `⚙️ Applying:\n${pending}`
+    `⚙️ Applying:\n${JSON.stringify(
+  pending
+)}`
   );
-  
+
     return runHermes(
       bot,
       chatId,
-      `apply "${pending}"`,
+      `apply "${JSON.stringify(
+  pending
+)}"`,
       pending
     );
   }
@@ -115,19 +119,17 @@ async function handleNusa(
       ''
     ).trim();
 
-  // save pending task
-  pendingTasks.set(
-    chatId,
-    cleanedTask
-  );
-
   return runHermes(
   bot,
   chatId,
-  `apply ${JSON.stringify(
-    pending
-  )}`,
-  pending
+  isAudit
+    ? `audit ${JSON.stringify(
+        cleanedTask
+      )}`
+    : JSON.stringify(
+        cleanedTask
+      ),
+  cleanedTask
 );
 }
 
