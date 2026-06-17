@@ -56,7 +56,7 @@ async function handleNusa(
   // APPLY MODE
   // =====================
   if (
-    /^apply$/i.test(task)
+    /^apply\b/i.test(task)
   ) {
 
     const pending =
@@ -71,6 +71,11 @@ async function handleNusa(
       );
     }
 
+      await bot.sendMessage(
+    chatId,
+    `⚙️ Applying:\n${pending}`
+  );
+  
     return runHermes(
       bot,
       chatId,
@@ -83,7 +88,7 @@ async function handleNusa(
   // CANCEL MODE
   // =====================
   if (
-    /^cancel$/i.test(task)
+    /^cancel\b/i.test(task)
   ) {
 
     pendingTasks.delete(
@@ -117,13 +122,13 @@ async function handleNusa(
   );
 
   return runHermes(
-    bot,
-    chatId,
-    isAudit
-      ? `audit "${cleanedTask}"`
-      : `"${cleanedTask}"`,
-    cleanedTask
-  );
+  bot,
+  chatId,
+  `apply ${JSON.stringify(
+    pending
+  )}`,
+  pending
+);
 }
 
 async function runHermes(
@@ -234,6 +239,17 @@ async function runHermes(
             '⚠️ Hermes tidak mengembalikan output.'
           );
         }
+
+        if (
+  commandArg.startsWith(
+    'audit'
+  )
+) {
+  pendingTasks.set(
+    chatId,
+    taskLabel
+  );
+}
 
         const chunkSize =
           3500;
