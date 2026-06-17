@@ -177,7 +177,7 @@ function selectModel(
   const taskMatch =
   String(task || '')
     .match(
-      /task:\s*([\s\S]*)$/i
+      /task:\s*([\s\S]*?)(?:\n\s*rules:|$)/i
     );
 
 const rawTask =
