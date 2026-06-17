@@ -170,29 +170,32 @@ function selectModel(
   const rule =
     escalationRules[agentName];
 
-  // no rule → use registry
   if (!rule) {
     return defaultModel;
   }
 
   const text =
-    task.toLowerCase();
+    String(task || '')
+      .toLowerCase();
 
-  const shouldEscalate =
-    rule.heavyKeywords.some(
+  const matchedKeyword =
+    rule.heavyKeywords.find(
       (keyword) =>
         text.includes(
-          keyword.toLowerCase()
+          String(keyword)
+            .toLowerCase()
         )
     );
 
-  // normal → registry model
-  // heavy → escalated model
-  // DEBUG
+  const shouldEscalate =
+    !!matchedKeyword;
+
   console.log(
     '[MODEL]',
     agentName,
     {
+      task: text,
+      matchedKeyword,
       shouldEscalate,
       fallback:
         rule.fallbackModel,
@@ -200,10 +203,10 @@ function selectModel(
         rule.escalatedModel
     }
   );
-  
+
   return shouldEscalate
     ? rule.escalatedModel
-    : defaultModel;
+    : rule.fallbackModel;
 }
 
 module.exports = {
