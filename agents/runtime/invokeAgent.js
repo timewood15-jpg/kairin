@@ -188,6 +188,19 @@ function selectModel(
 
   // normal → registry model
   // heavy → escalated model
+  // DEBUG
+  console.log(
+    '[MODEL]',
+    agentName,
+    {
+      shouldEscalate,
+      fallback:
+        rule.fallbackModel,
+      escalated:
+        rule.escalatedModel
+    }
+  );
+  
   return shouldEscalate
     ? rule.escalatedModel
     : defaultModel;
