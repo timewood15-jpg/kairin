@@ -174,35 +174,37 @@ function selectModel(
     return defaultModel;
   }
 
-  const text =
-    String(task || '')
-      .toLowerCase();
+  const rawTask =
+  String(task || '')
+    .split('task:')
+    .pop()
+    .trim()
+    .toLowerCase();
 
-  const matchedKeyword =
-    rule.heavyKeywords.find(
-      (keyword) =>
-        text.includes(
-          String(keyword)
-            .toLowerCase()
-        )
-    );
+const matchedKeyword =
+  rule.heavyKeywords.find(
+    (keyword) =>
+      rawTask.includes(
+        keyword.toLowerCase()
+      )
+  );
 
   const shouldEscalate =
     !!matchedKeyword;
 
   console.log(
-    '[MODEL]',
-    agentName,
-    {
-      task: text,
-      matchedKeyword,
-      shouldEscalate,
-      fallback:
-        rule.fallbackModel,
-      escalated:
-        rule.escalatedModel
-    }
-  );
+  '[MODEL]',
+  agentName,
+  {
+    rawTask,
+    matchedKeyword,
+    shouldEscalate,
+    fallback:
+      rule.fallbackModel,
+    escalated:
+      rule.escalatedModel
+  }
+);
 
   return shouldEscalate
     ? rule.escalatedModel
