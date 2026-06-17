@@ -164,6 +164,7 @@ function selectModel(
   const rule =
     escalationRules[agentName];
 
+  // no rule → use registry
   if (!rule) {
     return defaultModel;
   }
@@ -179,9 +180,11 @@ function selectModel(
         )
     );
 
+  // normal → registry model
+  // heavy → escalated model
   return shouldEscalate
     ? rule.escalatedModel
-    : rule.fallbackModel;
+    : defaultModel;
 }
 
 module.exports = {
