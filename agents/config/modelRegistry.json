@@ -12,7 +12,7 @@
     "temperature": 0.1
   },
   "aegis": {
-    "model": "minimax/minimax-m3",
+    "model": "deepseek/deepseek-chat-v3",
     "temperature": 0.1
   },
   "nami": {
