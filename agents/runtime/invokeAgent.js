@@ -180,10 +180,13 @@ function selectModel(
     );
 
 const rawTask =
- (taskMatch?.[1] || task)
-    .trim()
-    .split('\n')[0]
-    .toLowerCase();
+ taskMatch?.[1]
+    ?.trim()
+    ?.split('\n')[0]
+    ?.toLowerCase()
+  || String(task || '')
+      .trim()
+      .toLowerCase();
 
 const matchedKeyword =
   rule.heavyKeywords.find(
