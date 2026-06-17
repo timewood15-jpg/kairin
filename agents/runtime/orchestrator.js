@@ -161,6 +161,11 @@ Rules:
                 relevantFiles
               );
 
+            console.log(
+  '\nENRICHED TASK:\n',
+  enrichedTask
+);
+
             response =
               await invokeAgent(
                 agent,
