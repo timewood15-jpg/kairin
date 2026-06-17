@@ -58,6 +58,12 @@ async function invokeAgent(
     repoContext
   });
 
+  console.log(
+  '[AGENT]',
+  agentName,
+  config.model
+);
+
   const response =
     await fetch(
       `${process.env.OPENROUTER_BASE_URL}/chat/completions`,
