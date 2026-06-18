@@ -174,19 +174,16 @@ function selectModel(
     return defaultModel;
   }
 
-  const taskText =
-  String(task || '');
+  const lowerTask =
+  taskText.toLowerCase();
 
 const rawTask =
-  taskText.includes('Task:')
-    ? taskText
-        .split('Task:')[1]
-        .split('Rules:')[0]
+  lowerTask.includes('task:')
+    ? lowerTask
+        .split('task:')[1]
+        .split('rules:')[0]
         .trim()
-        .toLowerCase()
-    : taskText
-        .trim()
-        .toLowerCase();
+    : lowerTask.trim();
 
 const matchedKeyword =
   rule.heavyKeywords.find(
