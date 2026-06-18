@@ -167,10 +167,6 @@ function selectModel(
   task,
   defaultModel
 ) {
-  console.log('\n=== TASK ===\n');
-  console.log(task);
-  console.log('\n============\n');
-
   const rule =
     escalationRules[agentName];
 
@@ -205,20 +201,6 @@ const matchedKeyword =
 
   const shouldEscalate =
     !!matchedKeyword;
-
-  console.log(
-  '[MODEL]',
-  agentName,
-  {
-    rawTask,
-    matchedKeyword,
-    shouldEscalate,
-    fallback:
-      rule.fallbackModel,
-    escalated:
-      rule.escalatedModel
-  }
-);
 
   return shouldEscalate
     ? rule.escalatedModel
