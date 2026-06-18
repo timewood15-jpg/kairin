@@ -1,15 +1,5 @@
 {
   "id": "test-001",
-  "title": "OCR cleanup",
-  "status": "pending",
-  "winner": "proposal-a",
-  "files": [
-    "src/flows/ocrFlow.js"
-  ],
-  "proposals": [
-    {
-      "id": "proposal-a",
-      "summary": "Remove duplicate OCR parsing"
-    }
-  ]
+  "title": "Test Proposal",
+  "status": "pending"
 }
