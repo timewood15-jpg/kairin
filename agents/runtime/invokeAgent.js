@@ -170,7 +170,7 @@ function selectModel(
   console.log('\n=== TASK ===\n');
   console.log(task);
   console.log('\n============\n');
-  
+
   const rule =
     escalationRules[agentName];
 
@@ -181,16 +181,19 @@ function selectModel(
   const taskText =
   String(task || '');
   
-  const lowerTask =
-  taskText.toLowerCase();
+ const lower =
+  String(task || '');
+
+const parts =
+  lower.split(/task:/i);
 
 const rawTask =
-  lowerTask.includes('task:')
-    ? lowerTask
-        .split('task:')[1]
-        .split('rules:')[0]
+  parts.length > 1
+    ? parts[parts.length - 1]
+        .split(/rules:/i)[0]
         .trim()
-    : lowerTask.trim();
+        .toLowerCase()
+    : lower.trim().toLowerCase();
 
 const matchedKeyword =
   rule.heavyKeywords.find(
