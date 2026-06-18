@@ -174,6 +174,9 @@ function selectModel(
     return defaultModel;
   }
 
+  const taskText =
+  String(task || '');
+  
   const lowerTask =
   taskText.toLowerCase();
 
