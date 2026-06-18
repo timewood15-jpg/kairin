@@ -126,7 +126,7 @@ async function handleTransactionLookup(bot, chatId, user, input) {
   const tokens = tokenize(t);
   if (!tokens.length) return false;
 
-  if (followUp && ctx && tokens.length <= 3) {
+  if (followUp && ctx) {
     const trx = ctx.trx;
     const date = new Date(trx.date || trx.created_at).toLocaleDateString('id-ID', {
       day: 'numeric', month: 'long', year: 'numeric',
