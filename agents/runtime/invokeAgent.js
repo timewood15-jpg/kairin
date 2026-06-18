@@ -167,6 +167,10 @@ function selectModel(
   task,
   defaultModel
 ) {
+  console.log('\n=== TASK ===\n');
+  console.log(task);
+  console.log('\n============\n');
+  
   const rule =
     escalationRules[agentName];
 
