@@ -80,23 +80,57 @@ async function handleNusa(
     /^investigate\s+/i.test(task)
   ) {
     console.log('[NUSA DEBUG] investigate MATCHED');
-    const description =
+
+    const rest =
       task.replace(
         /^investigate\s+/i,
         ''
       ).trim();
 
-    if (!description) {
-      console.log('[NUSA DEBUG] description empty, returning usage');
+    if (!rest) {
       return bot.sendMessage(
         chatId,
-        'Usage: /nusa investigate <deskripsi>'
+        'Usage: /nusa investigate <file> <goal>'
       );
     }
 
-    // Generate a simple ID from the description
+    const parts =
+      rest.split(/\s+/);
+
+    const file =
+      parts[0];
+
+    const goal =
+      parts.slice(1).join(' ');
+
+    if (!file || !goal) {
+      return bot.sendMessage(
+        chatId,
+        'Usage: /nusa investigate <file> <goal>'
+      );
+    }
+
+    // Validate file exists relative to project root
+    const fs = require('fs');
+    const fullPath =
+      path.resolve(
+        __dirname,
+        '../../',
+        file
+      );
+
+    if (
+      !fs.existsSync(fullPath)
+    ) {
+      return bot.sendMessage(
+        chatId,
+        `❌ File not found:\n${file}`
+      );
+    }
+
+    // Generate a simple ID from the goal
     const id =
-      description
+      goal
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '')
@@ -104,18 +138,18 @@ async function handleNusa(
 
     const proposal = {
       id,
-      title: description,
+      title: goal,
       status: 'pending',
-      files: ['src/placeholder.js'],
+      files: [file],
       winner: 'investigate',
       patch: {
-        file: 'src/placeholder.js',
-        goal: `Investigate: ${description}`,
+        file,
+        goal,
         changes: []
       }
     };
 
-    console.log('[NUSA DEBUG] proposal GENERATED — id:', proposal.id);
+    console.log('[NUSA DEBUG] proposal GENERATED — id:', proposal.id, '| file:', file, '| goal:', goal);
 
     try {
       const targetDir = path.join(PROPOSAL_ROOT, 'pending');
