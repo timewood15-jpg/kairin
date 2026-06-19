@@ -321,6 +321,11 @@ async function updateTransaction(transactionId, userId, updates) {
     .single();
 
   if (error) throw error;
+  console.log(
+  '[UPDATE OK]',
+  data.id,
+  data.description
+);
   return data;
 }
 
