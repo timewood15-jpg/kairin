@@ -145,7 +145,12 @@ async function handleNusa(
       patch: {
         file,
         goal,
-        changes: []
+        changes: [
+          {
+            op: 'prepend',
+            content: `// Nusa investigate: ${goal}`
+          }
+        ]
       }
     };
 
