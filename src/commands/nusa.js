@@ -106,11 +106,11 @@ async function handleNusa(
       id,
       title: description,
       status: 'pending',
-      files: [],
-      winner: 'nusa',
+      files: ['src/placeholder.js'],
+      winner: 'investigate',
       patch: {
-        file: '',
-        goal: description,
+        file: 'src/placeholder.js',
+        goal: `Investigate: ${description}`,
         changes: []
       }
     };
