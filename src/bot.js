@@ -13,6 +13,7 @@ require('dotenv').config();
 
 // ✅ TAMBAHAN: Google OAuth
 const { google } = require('googleapis');
+const { syncSheet, syncMonthlySummary } = require('./services/googleSheet');
 
 const googleAuth =
   require('./services/google/auth');
@@ -158,7 +159,49 @@ app.get('/auth/google/callback', async (req, res) => {
       spreadsheet_id: spreadsheetId
     });
 
-    res.send('✅ Google berhasil terhubung! Silakan kembali ke Telegram 🎉');
+    // 5. backfill histori transaksi ke sheet
+    let backfillCount = 0;
+
+    try {
+      const user =
+        await db.getOrCreateUser(chatId);
+
+      const transactions =
+        await db.getTransactionsForSheet(
+          user.id,
+          100
+        );
+
+      if (
+        transactions &&
+        transactions.length > 0
+      ) {
+        await syncSheet(
+          authClient,
+          spreadsheetId,
+          transactions
+        );
+
+        await syncMonthlySummary(
+          authClient,
+          spreadsheetId,
+          transactions
+        );
+
+        backfillCount =
+          transactions.length;
+      }
+    } catch (backfillErr) {
+      console.error(
+        '❌ BACKFILL ERROR:',
+        backfillErr.message
+      );
+      // Sheet tetap terhubung meskipun backfill gagal
+    }
+
+    res.send(
+      `✅ Google berhasil terhubung! ${backfillCount} transaksi terakhir berhasil diimpor 🎉`
+    );
   } catch (err) {
     console.error('❌ OAuth callback error:', err.message);
     res.send('❌ Gagal connect Google');
