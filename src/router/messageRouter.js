@@ -7,7 +7,6 @@ const { handleFinanceInsight } = require('../flows/financeInsightFlow');
 const { handleTransactionLookup } = require('../flows/lookupFlow');
 const { handleAI } = require('../flows/aiFlow');
 
-const { routeCommand } = require('./commandRouter');
 const { rateLimit } = require('../middleware/rateLimit');
 
 async function routeMessage(bot, chatId, user, text) {
@@ -31,17 +30,6 @@ async function routeMessage(bot, chatId, user, text) {
   );
 
   if (gated) return true;
-
-  const isCommand = await routeCommand(
-   bot,
-   chatId,
-   user,
-   input
- )
-
- if (isCommand) {
-   return true;
- }
 
   const isLookup = await handleTransactionLookup(bot, chatId, user, input);
 
