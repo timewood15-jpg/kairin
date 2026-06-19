@@ -7,18 +7,7 @@ const { handleFinanceInsight } = require('../flows/financeInsightFlow');
 const { handleTransactionLookup } = require('../flows/lookupFlow');
 const { handleAI } = require('../flows/aiFlow');
 
-const { rateLimit } = require('../middleware/rateLimit');
-
 async function routeMessage(bot, chatId, user, text) {
-  const limited = await rateLimit(
-    user.id,
-    bot,
-    chatId
-  );
-
-  if (limited) {
-    return true;
-  }
   const input = text.toLowerCase().trim();
 
   const gated = await handleActiveSessions(
