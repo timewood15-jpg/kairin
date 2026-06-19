@@ -8,6 +8,14 @@ const APPROVED = path.join(ROOT, 'proposals', 'approved');
 const APPLIED = path.join(ROOT, 'proposals', 'applied');
 const REJECTED = path.join(ROOT, 'proposals', 'rejected');
 
+// ── Directory auto-creation ──────────────────────────────────────────
+const ALL_DIRS = [PENDING, APPROVED, APPLIED, REJECTED];
+
+function ensureDir(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
+// ── Load ──────────────────────────────────────────────────────────────
 function loadProposal(file) {
   try {
     return JSON.parse(
@@ -20,7 +28,10 @@ function loadProposal(file) {
   }
 }
 
+// ── Save ──────────────────────────────────────────────────────────────
 function saveProposal(folder, proposal) {
+  ensureDir(folder);
+
   const file = path.join(
     folder,
     `${proposal.id}.json`
@@ -34,6 +45,7 @@ function saveProposal(folder, proposal) {
   return file;
 }
 
+// ── Move ──────────────────────────────────────────────────────────────
 function moveProposal(id, fromDir, toDir) {
   const oldPath = path.join(fromDir, `${id}.json`);
   const newPath = path.join(toDir, `${id}.json`);
@@ -44,32 +56,46 @@ function moveProposal(id, fromDir, toDir) {
     );
   }
 
+  ensureDir(toDir);
   fs.renameSync(oldPath, newPath);
 
   return newPath;
 }
+
+// ── List (graceful if missing) ────────────────────────────────────────
 function getPending() {
-  return fs
-    .readdirSync(PENDING)
-    .filter(f => f.endsWith('.json'))
-    .map(f =>
-      loadProposal(
-        path.join(PENDING, f)
-      )
-    );
+  try {
+    return fs
+      .readdirSync(PENDING)
+      .filter(f => f.endsWith('.json'))
+      .map(f =>
+        loadProposal(
+          path.join(PENDING, f)
+        )
+      );
+  } catch (err) {
+    if (err.code === 'ENOENT') return [];
+    throw err;
+  }
 }
 
 function getApproved() {
-  return fs
-    .readdirSync(APPROVED)
-    .filter(f => f.endsWith('.json'))
-    .map(f =>
-      loadProposal(
-        path.join(APPROVED, f)
-      )
-    );
+  try {
+    return fs
+      .readdirSync(APPROVED)
+      .filter(f => f.endsWith('.json'))
+      .map(f =>
+        loadProposal(
+          path.join(APPROVED, f)
+        )
+      );
+  } catch (err) {
+    if (err.code === 'ENOENT') return [];
+    throw err;
+  }
 }
 
+// ── Transitions ───────────────────────────────────────────────────────
 function approveProposal(id) {
   return moveProposal(
     id,
@@ -94,10 +120,17 @@ function markApplied(id) {
   );
 }
 
+// ── Latest approved (graceful if missing) ─────────────────────────────
 function getLatestApproved() {
-  const files = fs
-    .readdirSync(APPROVED)
-    .filter(f => f.endsWith('.json'));
+  let files;
+  try {
+    files = fs
+      .readdirSync(APPROVED)
+      .filter(f => f.endsWith('.json'));
+  } catch (err) {
+    if (err.code === 'ENOENT') return null;
+    throw err;
+  }
 
   if (!files.length) return null;
 
