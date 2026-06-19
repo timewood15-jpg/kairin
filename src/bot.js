@@ -1,4 +1,6 @@
 const db = require('./services/database');
+const { formatDetailMessage } =
+  require('./commands/detail');
 const express = require('express');
 const app = express();
 
@@ -93,33 +95,10 @@ bot.on('callback_query', async (query) => {
         return;
       }
 
-      let message =
-        `🧾 ${trx.merchant || trx.description}\n` +
-        `📅 ${trx.bill_date || '-'}\n` +
-        `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
 
-      if (trx.bill_items?.length > 0) {
-
-        message +=
-          `🛒 ${trx.bill_items.length} item\n\n`;
-
-        trx.bill_items
-          .slice(0, 15)
-          .forEach(item => {
-
-            message +=
-              `• ${item.name}` +
-              `${item.qty > 1 ? ` x${item.qty}` : ''}` +
-              ` — Rp ${(item.total_price || 0)
-                .toLocaleString('id-ID')}\n`;
-          });
-
-      } else {
-        message += 'Tidak ada detail item';
-      }
+      const message = formatDetailMessage(trx);
 
       await bot.sendMessage(chatId, message);
-
       await bot.answerCallbackQuery(query.id);
     }
 
