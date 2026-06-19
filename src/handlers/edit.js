@@ -25,6 +25,11 @@ function formatRupiah(amount) {
 // ============================================================
 async function handleEdit(bot, chatId, user) {
   const transactions = await db.getLastTransactions(user.id, 10);
+  console.log(
+  '[EDIT]',
+  transactions[0]?.id,
+  transactions[0]?.description
+);
 
   if (transactions.length === 0) {
     await bot.sendMessage(chatId, '📋 Belum ada transaksi yang bisa diedit.');

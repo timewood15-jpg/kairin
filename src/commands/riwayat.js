@@ -4,6 +4,11 @@ const sessionRepo = require('../services/db/sessionRepo');
 async function handleRiwayat(bot, chatId, user) {
   const transactions =
     await transactionRepo.getLastTransactions(user.id, 5);
+    console.log(
+  '[RIWAYAT]',
+  transactions[0]?.id,
+  transactions[0]?.description
+);
   
   if (!transactions.length) {
     await bot.sendMessage(
