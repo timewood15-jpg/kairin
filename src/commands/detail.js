@@ -3,9 +3,10 @@ const sessionRepo = require('../services/db/sessionRepo');
 
 function formatDetailMessage(trx) {
   let message =
-    `🧾 ${trx.merchant || trx.description}\n` +
-    `📅 ${trx.bill_date || '-'}\n` +
-    `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
+    `🧾 ${trx.description}\n` +
+  `🏪 ${trx.merchant || '-'}\n` +
+  `📅 ${trx.bill_date || '-'}\n` +
+  `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
 
   if (trx.bill_items?.length > 0) {
     message += `🛒 ${trx.bill_items.length} item\n\n`;
