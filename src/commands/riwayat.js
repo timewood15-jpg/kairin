@@ -38,8 +38,7 @@ async function handleRiwayat(bot, chatId, user) {
       {
         text:
   `${index + 1}. ${
-    trx.description.slice(0, 20)
-  }`
+    trx.description}`
       }
     ]);
   });
