@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const pm = require('./proposalManager');
+const pm = require('../proposalManager');
 
 const ROOT = path.join(__dirname, '..', 'proposals');
 

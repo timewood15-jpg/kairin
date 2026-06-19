@@ -1,2 +1,8 @@
 node_modules
 .env
+
+agents/backups/
+agents/proposals/pending/
+agents/proposals/approved/
+agents/proposals/applied/
+agents/proposals/rejected/
