@@ -30,14 +30,16 @@ async function handleRiwayat(bot, chatId, user) {
 
   transactions.forEach((trx, index) => {
     msg +=
-      `${index + 1}. ` +
-      `${trx.merchant || trx.description}\n` +
-      `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
+  `${index + 1}. ${trx.description}\n` +
+  `${trx.merchant ? `🏪 ${trx.merchant}\n` : ''}` +
+  `💰 Rp ${trx.amount.toLocaleString('id-ID')}\n\n`;
 
     buttons.push([
       {
-        text: `${index + 1}️⃣ ${trx.merchant || 'Detail'}`,
-        callback_data: `detail_${index}`
+        text:
+  `${index + 1}. ${
+    trx.description.slice(0, 20)
+  }`
       }
     ]);
   });
