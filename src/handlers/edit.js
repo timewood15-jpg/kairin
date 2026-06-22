@@ -183,6 +183,19 @@ async function handleEditSession(bot, chatId, user, text) {
 
       const transactions = await db.getTransactionsForSheet(user.id, 100); // ambil banyak biar aman
 
+      console.log(
+  '[TOKEN]',
+  tokenData?.spreadsheet_id
+);
+
+      console.log(
+  '[SYNC]',
+  Array.isArray(transactions),
+  transactions?.length,
+  transactions?.[0]?.id,
+  transactions?.[0]?.description
+);
+
       await syncSheet(auth, tokenData.spreadsheet_id, transactions);
       await syncMonthlySummary(auth, tokenData.spreadsheet_id, transactions);
     }
