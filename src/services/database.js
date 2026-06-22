@@ -294,7 +294,7 @@ async function getLastTransactions(userId, limit = 10) {
   return data || [];
 }
 
-async function getTransactionsForSheet(user_id, limit = 100) {
+async function getTransactionsForSheet(user_id) {
   const { data, error } = await supabase
     .from('transactions')
     .select('*')

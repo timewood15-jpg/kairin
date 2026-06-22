@@ -169,7 +169,6 @@ app.get('/auth/google/callback', async (req, res) => {
       const transactions =
         await db.getTransactionsForSheet(
           user.id,
-          100
         );
 
       if (

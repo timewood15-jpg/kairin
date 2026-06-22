@@ -181,7 +181,7 @@ async function handleEditSession(bot, chatId, user, text) {
         refresh_token: tokenData.refresh_token,
       });
 
-      const transactions = await db.getTransactionsForSheet(user.id, 100); // ambil banyak biar aman
+      const transactions = await db.getTransactionsForSheet(user.id); // ambil banyak biar aman
 
       console.log(
   '[TOKEN]',
@@ -296,7 +296,7 @@ async function handleEditSession(bot, chatId, user, text) {
         refresh_token: tokenData.refresh_token,
       });
 
-      const transactions = await db.getTransactionsForSheet(user.id, 100);
+      const transactions = await db.getTransactionsForSheet(user.id);
 
       await syncSheet(auth, tokenData.spreadsheet_id, transactions);
       await syncMonthlySummary(auth, tokenData.spreadsheet_id, transactions);
