@@ -300,7 +300,6 @@ async function getTransactionsForSheet(user_id) {
     .select('*')
     .eq('user_id', user_id)
     .order('transacted_at', { ascending: true }) // 🔥 ASC (lama → baru)
-    .limit(limit);
 
   if (error) {
     console.error('❌ Error getTransactionsForSheet:', error.message);
