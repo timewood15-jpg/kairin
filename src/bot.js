@@ -101,56 +101,6 @@ bot.on('callback_query', async (query) => {
 
       await bot.sendMessage(chatId, message);
       await bot.answerCallbackQuery(query.id);
-    } else if (query.data?.startsWith('onboard_')) {
-      await bot.answerCallbackQuery(query.id);
-
-      await bot.editMessageReplyMarkup(
-        { inline_keyboard: [] },
-        { chatId, messageId: query.message.message_id }
-      );
-
-      if (query.data === 'onboard_expense') {
-        await bot.sendMessage(chatId,
-          '📝 *Cara catat pengeluaran*\\n\\n' +
-          'Ketik:\\n' +
-          '• `makan siang 25000`\\n' +
-          '• `bensin 80rb`\\n' +
-          '• `parkir 5000`\\n\\n' +
-          'Kategori akan terdeteksi otomatis! 🚀',
-          { parse_mode: 'Markdown' }
-        );
-      } else if (query.data === 'onboard_income') {
-        await bot.sendMessage(chatId,
-          '💰 *Cara catat pemasukan*\\n\\n' +
-          'Ketik:\\n' +
-          '• `+gaji 5jt`\\n' +
-          '• `transfer masuk 500000`\\n' +
-          '• `refund belanja 75000`\\n\\n' +
-          'Gunakan awalan `+` atau kata `gaji`/ `transfer`/ `uang masuk`! 🚀',
-          { parse_mode: 'Markdown' }
-        );
-      } else if (query.data === 'onboard_ocr') {
-        await bot.sendMessage(chatId,
-          '📷 *Scan struk/bill*\\n\\n' +
-          'Kirim foto struk langsung ke chat.\\n' +
-          'Kairin akan membaca total dan item otomatis.\\n\\n' +
-          'Catatan: Pastikan izin kamera/ galeri aktif di pengaturan Telegram.',
-          { parse_mode: 'Markdown' }
-        );
-      } else if (query.data === 'onboard_riwayat') {
-        const user = await db.getOrCreateUser(userId);
-        const { handleRiwayat } = require('./commands/riwayat');
-        await handleRiwayat(bot, chatId, user);
-      } else if (query.data === 'onboard_sheet') {
-        await bot.sendMessage(chatId,
-          '🔗 *Hubungkan Google Sheet*\\n\\n' +
-          'Ketik:\\n' +
-          '`/connect-sheet`\\n\\n' +
-          'Kamu akan diarahkan ke Google untuk memberikan izin akses.'
-        );
-      } else if (query.data === 'onboard_skip') {
-        // no message, just remove buttons
-      }
     }
 
   } catch (err) {
