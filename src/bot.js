@@ -118,6 +118,20 @@ app.get('/health', (req, res) => {
   res.send('OK');
 });
 
+app.get('/privacy', (req, res) => {
+  res.send(`
+    <h1>Kairin Privacy Policy</h1>
+
+    <p>Kairin hanya mengakses Google Sheets yang dipilih pengguna.</p>
+
+    <p>Data digunakan untuk menyimpan transaksi dan membuat laporan keuangan.</p>
+
+    <p>Kairin tidak membagikan data kepada pihak ketiga.</p>
+
+    <p>Pengguna dapat mencabut akses Google kapan saja melalui akun Google mereka.</p>
+  `);
+});
+
 // ✅ UPGRADE: callback OAuth (ganti yang lama)
 app.get('/auth/google/callback', async (req, res) => {
   try {
