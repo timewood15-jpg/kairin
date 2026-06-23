@@ -132,6 +132,22 @@ app.get('/privacy', (req, res) => {
   `);
 });
 
+app.get('/terms', (req, res) => {
+  res.send(`
+    <h1>Kairin Terms of Service</h1>
+
+    <p>Kairin disediakan sebagaimana adanya.</p>
+
+    <p>Pengguna bertanggung jawab atas data keuangan yang dicatat.</p>
+
+    <p>Kairin tidak menjamin akurasi mutlak hasil OCR atau analisis AI.</p>
+
+    <p>Pengguna dapat menghentikan penggunaan dan mencabut akses Google kapan saja.</p>
+
+    <p>Kairin dapat memperbarui layanan sewaktu-waktu.</p>
+  `);
+});
+
 // ✅ UPGRADE: callback OAuth (ganti yang lama)
 app.get('/auth/google/callback', async (req, res) => {
   try {
