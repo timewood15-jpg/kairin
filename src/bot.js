@@ -42,16 +42,6 @@ const bot = new TelegramBot(TOKEN, { polling: true });
 console.log('🚀 Kairin Bot sedang berjalan...');
 console.log('📱 Bot: @KairinAppBot');
 
-// ✅ TAMBAHAN: command connect Google
-  bot.onText(/\/connect-sheet/, async (msg) => {
-    const chatId = msg.chat.id;
-
-    const url =
-      googleAuth.generateAuthUrl(chatId);
-
-  await bot.sendMessage(chatId, `🔗 Hubungkan Google Sheet kamu:\n\n${url}`);
-});
-
 // handler existing kamu (TIDAK DIUBAH)
 bot.on('message', async (msg) => {
   try {

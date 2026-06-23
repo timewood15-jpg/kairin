@@ -8,9 +8,11 @@ const { handleEdit, handleHapus } = require('../handlers/edit');
 const { handleDetail } = require('../commands/detail');
 const { handleRiwayat } = require('../commands/riwayat');
 const { handleNusa } = require('../commands/nusa');
+const { handleConnectSheet } = require('../commands/connectSheet');
 
 const commands = {
   '/start': handleStart,
+  '/connect-sheet': handleConnectSheet,
   '/help': handleHelp,
   '/plan': handlePlan,
   '/hari': handleHari,
