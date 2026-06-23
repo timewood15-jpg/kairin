@@ -41,6 +41,17 @@ async function getOrCreateUser(telegramId, userData = {}) {
   return newUser;
 }
 
+// Cari user by internal ID
+async function getUserById(userId) {
+  const { data } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle();
+
+  return data;
+}
+
 // Update usage counter user
 async function incrementUsage(userId, type) {
   const field = type === 'photo' ? 'usage_photo_count' : 'usage_text_count';
@@ -539,9 +550,20 @@ async function getAllSheetWaitlist() {
   return data || [];
 }
 
+async function getSheetWaitlistByEmail(email) {
+  const { data } = await supabase
+    .from('sheet_waitlist')
+    .select('*')
+    .eq('email', email.toLowerCase().trim())
+    .maybeSingle();
+
+  return data;
+}
+
 module.exports = {
   supabase,
   getOrCreateUser,
+  getUserById,
   incrementUsage,
   checkLimit,
   saveTransaction,
@@ -566,6 +588,7 @@ module.exports = {
   getTransactionsForSheet,
   addSheetWaitlistEntry,
   getSheetWaitlistByUserId,
+  getSheetWaitlistByEmail,
   updateSheetWaitlistEmail,
   approveSheetWaitlist,
   getAllSheetWaitlist,

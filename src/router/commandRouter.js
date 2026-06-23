@@ -9,10 +9,12 @@ const { handleDetail } = require('../commands/detail');
 const { handleRiwayat } = require('../commands/riwayat');
 const { handleNusa } = require('../commands/nusa');
 const { handleConnectSheet } = require('../commands/connectSheet');
+const { handleSheetApprove } = require('../commands/sheetApprove');
 
 const commands = {
   '/start': handleStart,
   '/connect-sheet': handleConnectSheet,
+  '/sheet-approve': handleSheetApprove,
   '/help': handleHelp,
   '/plan': handlePlan,
   '/hari': handleHari,

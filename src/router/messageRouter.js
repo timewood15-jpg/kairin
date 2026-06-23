@@ -107,6 +107,19 @@ async function handleActiveSessions(bot, chatId, user, input, text) {
         `Kamu akan bisa menghubungkan Google Sheet setelah disetujui.`,
         { parse_mode: 'Markdown' }
       );
+
+      // 🔔 Notifikasi ke admin
+      const ADMIN_ID = Number(process.env.ADMIN_TELEGRAM_ID);
+      if (ADMIN_ID) {
+        await bot.sendMessage(ADMIN_ID,
+          `🔔 Permintaan Google Sheet baru\n\n` +
+          `Nama: ${user.full_name || '-'}\n` +
+          `Telegram ID: ${user.telegram_id}\n` +
+          `Email: ${email}\n\n` +
+          `Tambahkan email ini ke Google OAuth Test Users.\n\n` +
+          `Lalu jalankan:\n/sheet-approve ${email}`
+        );
+      }
     } catch (err) {
       if (err.message?.toLowerCase().includes('duplicate') ||
           err.message?.toLowerCase().includes('unique')) {
