@@ -469,6 +469,76 @@ async function getLastTransactions(userId, limit = 5) {
   return data || [];
 }
 
+// ============================================================
+// SHEET WAITLIST
+// ============================================================
+
+async function addSheetWaitlistEntry(userId) {
+  const { data, error } = await supabase
+    .from('sheet_waitlist')
+    .insert({
+      user_id: userId,
+      status: 'waiting_email'
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+async function getSheetWaitlistByUserId(userId) {
+  const { data } = await supabase
+    .from('sheet_waitlist')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  return data;
+}
+
+async function updateSheetWaitlistEmail(userId, email) {
+  const { data, error } = await supabase
+    .from('sheet_waitlist')
+    .update({
+      email: email.toLowerCase().trim(),
+      status: 'pending',
+      updated_at: new Date().toISOString()
+    })
+    .eq('user_id', userId)
+    .eq('status', 'waiting_email')
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+async function approveSheetWaitlist(userId) {
+  const { data, error } = await supabase
+    .from('sheet_waitlist')
+    .update({
+      status: 'approved',
+      approved_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })
+    .eq('user_id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+async function getAllSheetWaitlist() {
+  const { data } = await supabase
+    .from('sheet_waitlist')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  return data || [];
+}
+
 module.exports = {
   supabase,
   getOrCreateUser,
@@ -494,6 +564,11 @@ module.exports = {
   saveSpreadsheetId,
   getGoogleToken,
   getTransactionsForSheet,
+  addSheetWaitlistEntry,
+  getSheetWaitlistByUserId,
+  updateSheetWaitlistEmail,
+  approveSheetWaitlist,
+  getAllSheetWaitlist,
   getAllTransactions,
   getLastTransactions
 };
