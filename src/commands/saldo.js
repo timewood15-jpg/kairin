@@ -17,7 +17,7 @@ async function handleSaldo(bot, chatId, user) {
     `📊 *Rekap ${monthName}*\n\n` +
     `🟢 Pemasukan:   Rp ${formatRupiah(summary.income)}\n` +
     `🔴 Pengeluaran: Rp ${formatRupiah(summary.expense)}\n` +
-    `💰 Saldo:       Rp ${formatRupiah(summary.balance)}\n` +
+    `💰 Saldo:       Rp ${formatRupiah(summary.balance + (user.initial_balance || 0))}\n` +
     `📝 Transaksi:   ${summary.totalTransactions}x` +
     categoryText
   , { parse_mode: 'Markdown' });

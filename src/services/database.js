@@ -449,6 +449,32 @@ async function getLastTransactions(userId, limit = 5) {
 }
 
 // ============================================================
+// ONBOARDING
+// ============================================================
+
+async function getTransactionCount(userId) {
+  const { count, error } = await supabase
+    .from('transactions')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId);
+
+  if (error) throw error;
+  return count || 0;
+}
+
+async function setInitialBalance(userId, amount) {
+  const { data, error } = await supabase
+    .from('users')
+    .update({ initial_balance: amount })
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// ============================================================
 // SHEET WAITLIST
 // ============================================================
 
@@ -559,5 +585,7 @@ module.exports = {
   approveSheetWaitlist,
   getAllSheetWaitlist,
   getAllTransactions,
-  getLastTransactions
+  getLastTransactions,
+  getTransactionCount,
+  setInitialBalance
 };

@@ -58,11 +58,35 @@ async function deleteEditSession(userId) {
   }
 }
 
+// ===== ONBOARDING STATE =====
+
+async function setOnboardingState(userId, state) {
+  global.onboardingStates = global.onboardingStates || {};
+  global.onboardingStates[String(userId)] = state;
+}
+
+async function getOnboardingState(userId) {
+  return global.onboardingStates?.[
+    String(userId)
+  ] || null;
+}
+
+async function deleteOnboardingState(userId) {
+  if (global.onboardingStates) {
+    delete global.onboardingStates[
+      String(userId)
+    ];
+  }
+}
+
 module.exports = {
   createOcrSession,
   getOcrSession,
   deleteOcrSession,
   createEditSession,
   getEditSession,
-  deleteEditSession
+  deleteEditSession,
+  setOnboardingState,
+  getOnboardingState,
+  deleteOnboardingState
 };

@@ -34,16 +34,27 @@ async function routeMessage(bot, chatId, user, text) {
   }
 
   // ================================
-  const isTransaction = await handleTextTransaction(
-    bot,
-    chatId,
-    user,
-    text
-  );
+    const txCount = await db.getTransactionCount(user.id);
 
-  if (isTransaction) {
-    return true;
-  }
+    const isTransaction = await handleTextTransaction(
+      bot,
+      chatId,
+      user,
+      text
+    );
+
+    if (isTransaction) {
+      // 🔥 First transaction → offer initial balance
+      if (txCount === 0) {
+        sessionRepo.setOnboardingState(user.id, 'saldo_offer');
+        await bot.sendMessage(chatId,
+          `💡 Ingin memasukkan saldo awal?\n\n` +
+          `Contoh:\n\`5000000\`\n\nAtau ketik:\n\`lewati\``,
+          { parse_mode: 'Markdown' }
+        );
+      }
+      return true;
+    }
 
   // ================================
   // 🔥 AI FALLBACK
@@ -54,6 +65,38 @@ async function routeMessage(bot, chatId, user, text) {
 }
 
 async function handleActiveSessions(bot, chatId, user, input, text) {
+  // ================================
+  // 🔥 ONBOARDING — tawaran saldo awal
+  // ================================
+  const onboardingState = sessionRepo.getOnboardingState(user.id);
+
+  if (onboardingState === 'saldo_offer') {
+    const raw = text.trim();
+
+    if (raw.toLowerCase() === 'lewati') {
+      sessionRepo.deleteOnboardingState(user.id);
+      await bot.sendMessage(chatId, 'Baik, lewati dulu ya.');
+      return true;
+    }
+
+    const amount = parseInt(raw.replace(/[^0-9]/g, ''));
+    if (amount > 0) {
+      await db.setInitialBalance(user.id, amount);
+      sessionRepo.deleteOnboardingState(user.id);
+      await bot.sendMessage(chatId,
+        `✅ Saldo awal Rp ${amount.toLocaleString('id-ID')} tersimpan!`,
+        { parse_mode: 'Markdown' }
+      );
+      return true;
+    }
+
+    await bot.sendMessage(chatId,
+      '❌ Masukkan angka yang valid atau ketik `lewati`',
+      { parse_mode: 'Markdown' }
+    );
+    return true;
+  }
+
   const ocrSession = await sessionRepo.getOcrSession(user.id);
 
   if (ocrSession) {
