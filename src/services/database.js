@@ -257,38 +257,6 @@ async function uploadStrukPhoto(userId, fileBuffer, filename) {
 }
 
 // ============================================================
-// WALLETS (DOMPET)
-// ============================================================
-
-// Ambil semua dompet user
-async function getUserWallets(userId) {
-  const { data, error } = await supabase
-    .from('wallets')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('is_active', true)
-    .order('created_at', { ascending: true });
-
-  if (error) throw error;
-  return data || [];
-}
-
-// Buat dompet default saat user baru
-async function createDefaultWallets(userId) {
-  const defaultWallets = [
-    { user_id: userId, name: 'Tunai', type: 'cash', icon: '👛', balance: 0 },
-    { user_id: userId, name: 'Bank', type: 'bank', icon: '💳', balance: 0 },
-    { user_id: userId, name: 'E-Wallet', type: 'ewallet', icon: '📱', balance: 0 },
-  ];
-
-  const { error } = await supabase.from('wallets').insert(defaultWallets);
-  if (error) throw error;
-}
-
-// Tambahkan fungsi-fungsi ini ke src/services/database.js
-// Letakkan sebelum module.exports
-
-// ============================================================
 // EDIT & HAPUS TRANSAKSI
 // ============================================================
 
@@ -571,9 +539,7 @@ module.exports = {
   getMonthlyTransactions,
   getMonthlySummary,
   uploadStrukPhoto,
-  getUserWallets,
-  createDefaultWallets,
-  getRecentTransactions,
+    getRecentTransactions,
   // Tambah ini ↓
   getLastTransactions,
   updateTransaction,

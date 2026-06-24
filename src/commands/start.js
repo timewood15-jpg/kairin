@@ -1,7 +1,8 @@
 async function handleStart(bot, chatId, user) {
   const firstName = user.full_name?.split(' ')[0] || 'Kamu';
 
-  const msg = `👋 Halo *${firstName}*! Selamat datang di *Kairin*.
+  const msg = `👋 Halo *${firstName}*! 
+  Salam kenal aku *Kairin*, asisten keuangan pribadi kamu
 
 Catat pemasukan & pengeluaran cukup lewat chat.
 

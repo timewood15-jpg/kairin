@@ -1,7 +1,6 @@
 const { handleHelp } = require('../commands/help');
 const { handlePlan } = require('../commands/plan');
 const { handleHari } = require('../commands/hari');
-const { handleDompet } = require('../commands/dompet');
 const { handleSaldo } = require('../commands/saldo');
 const { handleStart } = require('../commands/start');
 const { handleEdit, handleHapus } = require('../handlers/edit');
@@ -18,7 +17,6 @@ const commands = {
   '/help': handleHelp,
   '/plan': handlePlan,
   '/hari': handleHari,
-  '/dompet': handleDompet,
   '/saldo': handleSaldo,
   '/edit': handleEdit,
   '/hapus': handleHapus,
