@@ -8,7 +8,8 @@ function parseOfflineTransaction(text) {
   const input = textLower;
 
   // 🔢 ambil angka + unit
-  const match = input.match(/([\d.,]+)\s*(rb|ribu|k|jt|juta)?/i);
+  const matches = [...input.matchAll(/([\d.,]+)\s*(rb|ribu|k\b|jt|juta)?/gi)];
+  const match = matches.length > 0 ? matches[matches.length - 1] : null;
   if (!match) return null;
 
   // Normalisasi angka Indonesia menggunakan HANYA match[1]
