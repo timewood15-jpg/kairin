@@ -68,7 +68,7 @@ async function handleActiveSessions(bot, chatId, user, input, text) {
   // ================================
   // 🔥 ONBOARDING — tawaran saldo awal
   // ================================
-  const onboardingState = sessionRepo.getOnboardingState(user.id);
+  const onboardingState = await sessionRepo.getOnboardingState(user.id);
 
   if (onboardingState === 'saldo_offer') {
     const raw = text.trim();
