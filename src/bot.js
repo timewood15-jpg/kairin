@@ -1,6 +1,7 @@
 const db = require('./services/database');
 const { formatDetailMessage } =
   require('./commands/detail');
+const sessionRepo = require('./services/db/sessionRepo');
 const express = require('express');
 const app = express();
 
@@ -172,15 +173,26 @@ app.get('/auth/google/callback', async (req, res) => {
     const spreadsheetId = await createSheet(authClient);
 
     // 4. simpan SEKALIGUS
-    await db.saveGoogleToken({
-      user_id: chatId,
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token || undefined,
-      spreadsheet_id: spreadsheetId
-    });
+        await db.saveGoogleToken({
+          user_id: chatId,
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token || undefined,
+          spreadsheet_id: spreadsheetId
+        });
 
-    // 5. backfill histori transaksi ke sheet
-    let backfillCount = 0;
+        // 🔥 Clear onboarding sheet_offer
+        const onboardingState =
+          await sessionRepo.getOnboardingState(chatId);
+        if (onboardingState === 'sheet_offer') {
+          await sessionRepo.deleteOnboardingState(chatId);
+          await bot.sendMessage(chatId,
+            `🔒 Data transaksi kamu hanya dapat diakses oleh akun yang kamu hubungkan.\n\n` +
+            `Selamat menggunakan Kairin ✨`
+          );
+        }
+
+        // 5. backfill histori transaksi ke sheet
+        let backfillCount = 0;
 
     try {
       const user =

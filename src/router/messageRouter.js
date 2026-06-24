@@ -74,30 +74,61 @@ async function handleActiveSessions(bot, chatId, user, input, text) {
     const raw = text.trim();
 
     if (raw.toLowerCase() === 'lewati') {
-      sessionRepo.deleteOnboardingState(user.id);
-      await bot.sendMessage(chatId, 'Baik, lewati dulu ya.');
-      return true;
-    }
+          sessionRepo.setOnboardingState(user.id, 'sheet_offer');
+          await bot.sendMessage(chatId, 'Baik, lewati dulu ya.');
+          await bot.sendMessage(chatId,
+            `☁️ Ingin menyimpan transaksi ke Google Sheet pribadi?\n\n` +
+            `Ketik:\n/connect-sheet\n\nAtau:\n\`lewati\``,
+            { parse_mode: 'Markdown' }
+          );
+          return true;
+        }
 
-    const amount = parseInt(raw.replace(/[^0-9]/g, ''));
-    if (amount > 0) {
-      await db.setInitialBalance(user.id, amount);
-      sessionRepo.deleteOnboardingState(user.id);
-      await bot.sendMessage(chatId,
-        `✅ Saldo awal Rp ${amount.toLocaleString('id-ID')} tersimpan!`,
-        { parse_mode: 'Markdown' }
-      );
-      return true;
-    }
+        const amount = parseInt(raw.replace(/[^0-9]/g, ''));
+        if (amount > 0) {
+          await db.setInitialBalance(user.id, amount);
+          sessionRepo.setOnboardingState(user.id, 'sheet_offer');
+          await bot.sendMessage(chatId,
+            `✅ Saldo awal Rp ${amount.toLocaleString('id-ID')} tersimpan!`,
+            { parse_mode: 'Markdown' }
+          );
+          await bot.sendMessage(chatId,
+            `☁️ Ingin menyimpan transaksi ke Google Sheet pribadi?\n\n` +
+            `Ketik:\n/connect-sheet\n\nAtau:\n\`lewati\``,
+            { parse_mode: 'Markdown' }
+          );
+          return true;
+        }
 
     await bot.sendMessage(chatId,
       '❌ Masukkan angka yang valid atau ketik `lewati`',
       { parse_mode: 'Markdown' }
     );
     return true;
-  }
+      }
 
-  const ocrSession = await sessionRepo.getOcrSession(user.id);
+      if (onboardingState === 'sheet_offer') {
+        const raw = text.trim();
+
+        if (raw.toLowerCase() === 'lewati') {
+          sessionRepo.deleteOnboardingState(user.id);
+          await bot.sendMessage(chatId,
+            `🔒 Data transaksi kamu hanya dapat diakses oleh akun yang kamu hubungkan.\n\n` +
+            `Selamat menggunakan Kairin ✨`
+          );
+          return true;
+        }
+
+        // Input lain → selesaikan onboarding, proses transaksi normal
+        sessionRepo.deleteOnboardingState(user.id);
+        await bot.sendMessage(chatId,
+          `🔒 Data transaksi kamu hanya dapat diakses oleh akun yang kamu hubungkan.\n\n` +
+          `Selamat menggunakan Kairin ✨`
+        );
+        return false;
+      }
+
+      const ocrSession = await sessionRepo.getOcrSession(user.id);
 
   if (ocrSession) {
     await handleOCRSession(
