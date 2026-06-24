@@ -85,9 +85,12 @@ function parseOfflineTransaction(text) {
     }
   }
 
-  let description = input
-    .replace(/([\d.,]+)\s*(rb|ribu|k|jt|juta)?/gi, '') // hapus angka + unit
-    .trim();
+  // 🔥 Hapus hanya match TERAKHIR (nominal uang) dari deskripsi
+    let description = input;
+    if (matches.length > 0) {
+      const last = matches[matches.length - 1];
+      description = (input.slice(0, last.index) + input.slice(last.index + last[0].length)).trim();
+    }
 
   if (!description) {
     description = type === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran';
