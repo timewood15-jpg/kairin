@@ -1,46 +1,22 @@
-const db = require('../services/database');
-
 async function handleStart(bot, chatId, user) {
   const firstName = user.full_name?.split(' ')[0] || 'Kamu';
 
-  const msg = `👋 Halo *${firstName}*! Selamat datang di *Kairin*!
+  const msg = `👋 Halo *${firstName}*! Selamat datang di *Kairin*.
 
-🤖 _Kami Bantu Input, Rekap Instan_
+Catat pemasukan & pengeluaran cukup lewat chat.
 
-Kairin adalah asisten keuangan AI yang akan membantu kamu:
-• 📝 Catat pemasukan & pengeluaran
-• 📷 Baca struk/bill otomatis via foto
-• 📊 Rekap & analisis keuangan
-• 💡 Saran hemat yang personal
+*Coba kirim:*
+\`makan siang 25000\`
+\`gaji 5jt\`
 
-*Cara pakai:*
-• Ketik transaksi: \`makan siang 25000\`
-• Pemasukan: \`+gaji 5jt\`
-• Foto struk → langsung kirim!
+📷 Kirim foto struk juga langsung terbaca otomatis.
 
-*Perintah tersedia:*
-/edit — Ubah detai transaksi tersimpan
-/hapus — Hapus transaksi terimpan
-/saldo — Rekap bulan ini
-/hari — Transaksi hari ini
-/dompet — Cek saldo dompet
-/plan — Info plan kamu
-/help — Bantuan lengkap
+/riwayat — Riwayat transaksi
+/help — Panduan lengkap
 
-Yuk mulai catat transaksi pertamamu! 🚀`;
+Yuk mulai! ✨`;
 
   await bot.sendMessage(chatId, msg, { parse_mode: 'Markdown' });
-
-  // Buat dompet default kalau belum ada
-  const wallets = await db.getUserWallets(user.id);
-  if (wallets.length === 0) {
-    await db.createDefaultWallets(user.id);
-    await bot.sendMessage(chatId,
-      '💼 Saya sudah siapkan 3 dompet default untuk kamu:\n' +
-      '👛 Tunai\n💳 Bank\n📱 E-Wallet\n\n' +
-      'Ketik /dompet untuk lihat dan atur saldo awal!'
-    );
-  }
 }
 
 module.exports = { handleStart };

@@ -1,26 +1,24 @@
 async function handleHelp(bot, chatId) {
   const msg = `📖 *Panduan Kairin*
 
-*Input Transaksi Teks:*
+*Input Transaksi:*
 \`makan siang 25000\` → pengeluaran
-\`bensin 80rb\` → pengeluaran
-\`+gaji 5jt\` → pemasukan
-\`+transfer masuk 500000\` → pemasukan
+\`gaji 5jt\` → pemasukan
+\`transfer masuk 500000\` → pemasukan
 
 *Foto Struk:*
-Kirim foto struk/bill langsung → Kairin baca otomatis!
+Kirim foto struk langsung — baca otomatis!
 
 *Perintah:*
-/edit — Ubah detai transaksi tersimpan
-/hapus — Hapus transaksi terimpan
+/riwayat — Riwayat transaksi
 /saldo — Rekap bulan ini
 /hari — Transaksi hari ini
-/dompet — Saldo semua dompet
-/plan — Info & upgrade plan
+/edit — Ubah detail transaksi
+/hapus — Hapus transaksi
 /help — Panduan ini
 
-*Tanya AI (Plan Pro):*
-Ketik pertanyaan bebas tentang keuangan kamu!
+*Tanya AI:*
+Ketik pertanyaan bebas tentang keuangan kamu.
 Contoh: _"Bulan ini saya boros di mana?"_`;
 
   await bot.sendMessage(chatId, msg, { parse_mode: 'Markdown' });
