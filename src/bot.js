@@ -187,8 +187,10 @@ app.get('/auth/google/callback', async (req, res) => {
         if (onboardingState === 'sheet_offer') {
           await sessionRepo.deleteOnboardingState(user.id);
           await bot.sendMessage(chatId,
-            `🔒 Data transaksi kamu hanya dapat diakses oleh akun yang kamu hubungkan.\n\n` +
-            `Selamat menggunakan Kairin ✨`
+             `🔒 Keamanan dan privasi data kamu terjaga.\n\n` +
+             `Data transaksi hanya dapat diakses oleh akun Google yang kamu hubungkan.\n\n` +
+             `Selamat menggunakan Kairin ✨`,
+             { parse_mode: 'Markdown' }
           );
         }
 
