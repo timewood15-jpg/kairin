@@ -85,6 +85,27 @@ function parseOfflineTransaction(text) {
     }
   }
 
+  // 🔥 KATEGORI KHUSUS INCOME (hindari 'Lain-lain')
+  if (type === 'pemasukan' && category === 'Lain-lain') {
+    const incomeKeywords = [
+      { kw: 'gaji', cat: 'Gaji' },
+      { kw: 'transfer masuk', cat: 'Transfer' },
+      { kw: 'bonus', cat: 'Bonus' },
+      { kw: 'pendapatan', cat: 'Pemasukan' }
+    ];
+
+    for (const { kw, cat } of incomeKeywords) {
+      if (input.includes(kw)) {
+        category = cat;
+        break;
+      }
+    }
+
+    if (category === 'Lain-lain') {
+      category = 'Pemasukan';
+    }
+  }
+
   // 🔥 Hapus hanya match TERAKHIR (nominal uang) dari deskripsi
     let description = input;
     if (matches.length > 0) {

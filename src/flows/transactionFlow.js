@@ -127,7 +127,11 @@ try {
 }
 
   await bot.sendMessage(chatId,
-    `${parsed.type === 'pemasukan' ? '🟢' : '🔴'} *${parsed.type.toUpperCase()}*\n\n` +
+    `✅ ${
+      parsed.type === 'pemasukan'
+        ? 'Pemasukan tercatat'
+        : 'Pengeluaran tercatat'
+    }\n\n` +
     `📝 ${parsed.description}\n` +
     `💵 Rp ${parsed.amount.toLocaleString('id-ID')}\n` +
     `📂 ${parsed.category}`
