@@ -234,7 +234,14 @@ app.get('/auth/google/callback', async (req, res) => {
     }
 
     res.send(
-      `✅ Google berhasil terhubung! ${backfillCount} transaksi terakhir berhasil diimpor 🎉`
+      `✅ Google Sheet berhasil terhubung!\n\n` +
+      `📊 Spreadsheet Kairin telah dibuat di Google Drive kamu.\n\n` +
+      `Buka:\n` +
+      `https://docs.google.com/spreadsheets/d/${spreadsheetId}\n\n` +
+      `📊 ${backfillCount} transaksi terakhir berhasil diimpor.\n\n` +
+      `Transaksi berikutnya akan otomatis tersinkron.\n\n` +
+      `🔐 Keamanan dan privasi data kamu terjaga.\n\n` +
+      `Selamat menggunakan Kairin ✨`
     );
   } catch (err) {
     console.error('❌ OAuth callback error:', err.message);
