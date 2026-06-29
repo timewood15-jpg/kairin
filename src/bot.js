@@ -231,6 +231,8 @@ app.get('/auth/google/callback', async (req, res) => {
       `✅ Google Sheet berhasil terhubung!\n\n` +
       `📊 ${backfillCount} transaksi berhasil disinkronkan.\n\n` +
       `Transaksi berikutnya akan otomatis tersinkron.\n\n` +
+      `📄 Buka spreadsheet kamu:\n` +
+`https://docs.google.com/spreadsheets/d/${spreadsheetId}\n\n` +
       `🔐 Keamanan dan privasi data kamu terjaga.\n\n` +
       `Selamat menggunakan Kairin ✨`
     );
