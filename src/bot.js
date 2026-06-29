@@ -186,12 +186,6 @@ app.get('/auth/google/callback', async (req, res) => {
           await sessionRepo.getOnboardingState(user.id);
         if (onboardingState === 'sheet_offer') {
           await sessionRepo.deleteOnboardingState(user.id);
-          await bot.sendMessage(chatId,
-             `🔒 Keamanan dan privasi data kamu terjaga.\n\n` +
-             `Data transaksi hanya dapat diakses oleh akun Google yang kamu hubungkan.\n\n` +
-             `Selamat menggunakan Kairin ✨`,
-             { parse_mode: 'Markdown' }
-          );
         }
 
         // 5. backfill histori transaksi ke sheet
@@ -233,15 +227,17 @@ app.get('/auth/google/callback', async (req, res) => {
       // Sheet tetap terhubung meskipun backfill gagal
     }
 
-    res.send(
+    await bot.sendMessage(chatId,
       `✅ Google Sheet berhasil terhubung!\n\n` +
-      `📊 Spreadsheet Kairin telah dibuat di Google Drive kamu.\n\n` +
-      `Buka:\n` +
-      `https://docs.google.com/spreadsheets/d/${spreadsheetId}\n\n` +
-      `📊 ${backfillCount} transaksi terakhir berhasil diimpor.\n\n` +
+      `📊 ${backfillCount} transaksi berhasil disinkronkan.\n\n` +
       `Transaksi berikutnya akan otomatis tersinkron.\n\n` +
       `🔐 Keamanan dan privasi data kamu terjaga.\n\n` +
       `Selamat menggunakan Kairin ✨`
+    );
+
+    res.send(
+      `✅ Google Sheet berhasil terhubung.\n\n` +
+      `Silakan kembali ke Telegram dan lanjutkan menggunakan Kairin.`
     );
   } catch (err) {
     console.error('❌ OAuth callback error:', err.message);
