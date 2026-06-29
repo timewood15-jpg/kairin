@@ -107,55 +107,6 @@ async function handleActiveSessions(bot, chatId, user, input, text) {
     return true;
       }
 
-      if (onboardingState === 'sheet_offer') {
-        const raw = text.trim();
-
-        if (raw.toLowerCase() === 'lewati') {
-          sessionRepo.deleteOnboardingState(user.id);
-          await bot.sendMessage(chatId,
-            `🔒 Data transaksi kamu hanya dapat diakses oleh akun yang kamu hubungkan.\n\n` +
-            `Selamat menggunakan Kairin ✨`
-          );
-          return true;
-        }
-
-        // Input lain → selesaikan onboarding, proses transaksi normal
-        sessionRepo.deleteOnboardingState(user.id);
-        await bot.sendMessage(chatId,
-          `🔒 Data transaksi kamu hanya dapat diakses oleh akun yang kamu hubungkan.\n\n` +
-          `Selamat menggunakan Kairin ✨`
-        );
-        return false;
-      }
-
-      const ocrSession = await sessionRepo.getOcrSession(user.id);
-
-  if (ocrSession) {
-    await handleOCRSession(
-      bot,
-      chatId,
-      user,
-      input,
-      ocrSession
-    );
-
-    return true;
-  }
-
-  // ================================
-  // 🔥 EDIT SESSION
-  // ================================
-  if (hasEditSession(user.id)) {
-    const handled = await handleEditSession(
-      bot,
-      chatId,
-      user,
-      text
-    );
-
-    if (handled) return true;
-  }
-
   // ================================
   // 🔥 SHEET WAITLIST — tunggu input email
   // ================================
@@ -207,6 +158,55 @@ async function handleActiveSessions(bot, chatId, user, input, text) {
     }
 
     return true;
+  }
+
+      if (onboardingState === 'sheet_offer') {
+        const raw = text.trim();
+
+        if (raw.toLowerCase() === 'lewati') {
+          sessionRepo.deleteOnboardingState(user.id);
+          await bot.sendMessage(chatId,
+            `🔒 Data transaksi kamu hanya dapat diakses oleh akun yang kamu hubungkan.\n\n` +
+            `Selamat menggunakan Kairin ✨`
+          );
+          return true;
+        }
+
+        // Input lain → selesaikan onboarding, proses transaksi normal
+        await bot.sendMessage(chatId,
+          `🔒 Data transaksi kamu hanya dapat diakses oleh akun yang kamu hubungkan.\n\n` +
+          `Selamat menggunakan Kairin ✨`
+        );
+        sessionRepo.deleteOnboardingState(user.id);
+        return false;
+      }
+
+      const ocrSession = await sessionRepo.getOcrSession(user.id);
+
+  if (ocrSession) {
+    await handleOCRSession(
+      bot,
+      chatId,
+      user,
+      input,
+      ocrSession
+    );
+
+    return true;
+  }
+
+  // ================================
+  // 🔥 EDIT SESSION
+  // ================================
+  if (hasEditSession(user.id)) {
+    const handled = await handleEditSession(
+      bot,
+      chatId,
+      user,
+      text
+    );
+
+    if (handled) return true;
   }
 
   return false;
