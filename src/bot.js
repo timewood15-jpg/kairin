@@ -168,6 +168,7 @@ app.get('/auth/google/callback', async (req, res) => {
     // 2. ambil chatId
     const chatId = Number(req.query.state);
     console.log('USER TELEGRAM:', chatId);
+    const user = await db.getOrCreateUser(chatId);
 
     // 3. buat sheet DULU
     const spreadsheetId = await createSheet(authClient);
@@ -182,9 +183,9 @@ app.get('/auth/google/callback', async (req, res) => {
 
         // 🔥 Clear onboarding sheet_offer
         const onboardingState =
-          await sessionRepo.getOnboardingState(chatId);
+          await sessionRepo.getOnboardingState(user.id);
         if (onboardingState === 'sheet_offer') {
-          await sessionRepo.deleteOnboardingState(chatId);
+          await sessionRepo.deleteOnboardingState(user.id);
           await bot.sendMessage(chatId,
             `🔒 Data transaksi kamu hanya dapat diakses oleh akun yang kamu hubungkan.\n\n` +
             `Selamat menggunakan Kairin ✨`
